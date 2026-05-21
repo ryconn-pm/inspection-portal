@@ -175,8 +175,12 @@
             <button class="flt-btn" id="fbtn-today-region" onclick="toggleFilter(event,'fpop-today-region','fbtn-today-region')"><span></span><span></span><span></span></button>
           </div>
           <div class="flt-popup" id="fpop-today-region">
-            <div class="flt-lbl">Filter by region</div>
-            <select id="cf-today-region"><option value="">All Regions</option></select>
+            <div class="flt-lbl">Property class</div>
+            <select id="cf-today-region">
+              <option value="">All</option>
+              <option value="residential">Residential</option>
+              <option value="commercial">Commercial</option>
+            </select>
             <button class="flt-clr" onclick="clearFlt('cf-today-region','fbtn-today-region','today')">Clear</button>
           </div>
         </th>
@@ -259,8 +263,12 @@
             <button class="flt-btn" id="fbtn-int-region" onclick="toggleFilter(event,'fpop-int-region','fbtn-int-region')"><span></span><span></span><span></span></button>
           </div>
           <div class="flt-popup" id="fpop-int-region">
-            <div class="flt-lbl">Filter by region</div>
-            <select id="cf-int-region"><option value="">All Regions</option></select>
+            <div class="flt-lbl">Property class</div>
+            <select id="cf-int-region">
+              <option value="">All</option>
+              <option value="residential">Residential</option>
+              <option value="commercial">Commercial</option>
+            </select>
             <button class="flt-clr" onclick="clearFlt('cf-int-region','fbtn-int-region','int')">Clear</button>
           </div>
         </th>
@@ -349,8 +357,12 @@
             <button class="flt-btn" id="fbtn-ext-region" onclick="toggleFilter(event,'fpop-ext-region','fbtn-ext-region')"><span></span><span></span><span></span></button>
           </div>
           <div class="flt-popup" id="fpop-ext-region">
-            <div class="flt-lbl">Filter by region</div>
-            <select id="cf-ext-region"><option value="">All Regions</option></select>
+            <div class="flt-lbl">Property class</div>
+            <select id="cf-ext-region">
+              <option value="">All</option>
+              <option value="residential">Residential</option>
+              <option value="commercial">Commercial</option>
+            </select>
             <button class="flt-clr" onclick="clearFlt('cf-ext-region','fbtn-ext-region','ext')">Clear</button>
           </div>
         </th>
@@ -393,7 +405,6 @@ const INT_DAYS=365,EXT_DAYS=183;
 const CSV_URL='https://raw.githubusercontent.com/ryconn-pm/inspection-portal/main/data/report.csv';
 
 const ZIP_REGION={'92543':'Hemet','92544':'Hemet','92545':'Hemet','92548':'Hemet','92586':'Hemet','92501':'Riverside City','92503':'Riverside City','92504':'Riverside City','92505':'Riverside City','92506':'Riverside City','92507':'Riverside City','92508':'Riverside City','92509':'Riverside City','92582':'San Jacinto / Menifee','92583':'San Jacinto / Menifee','92584':'San Jacinto / Menifee','92585':'San Jacinto / Menifee','92530':'San Jacinto / Menifee','92532':'San Jacinto / Menifee','92223':'San Jacinto / Menifee','92879':'Corona / Norco','92880':'Corona / Norco','92881':'Corona / Norco','92882':'Corona / Norco','92883':'Corona / Norco','92878':'Corona / Norco','92860':'Corona / Norco','92562':'Murrieta / Temecula','92563':'Murrieta / Temecula','92591':'Murrieta / Temecula','92592':'Murrieta / Temecula','92596':'Murrieta / Temecula','92320':'Colton / Rialto / SB','92324':'Colton / Rialto / SB','92334':'Colton / Rialto / SB','92335':'Colton / Rialto / SB','92336':'Colton / Rialto / SB','92337':'Colton / Rialto / SB','92354':'Colton / Rialto / SB','92374':'Colton / Rialto / SB','92376':'Colton / Rialto / SB','92404':'Colton / Rialto / SB','92405':'Colton / Rialto / SB','92410':'Colton / Rialto / SB','92551':'Moreno Valley','92553':'Moreno Valley','92555':'Moreno Valley','92557':'Moreno Valley','92570':'Moreno Valley','91709':'Chino / Pomona','91710':'Chino / Pomona','91711':'Chino / Pomona','91730':'Chino / Pomona','91739':'Chino / Pomona','91752':'Chino / Pomona','91761':'Chino / Pomona','91766':'Chino / Pomona','91767':'Chino / Pomona','92587':'Sun City / Wildomar','92595':'Sun City / Wildomar','92240':'Low Desert','92234':'Low Desert','92440':'Low Desert','92345':'High Desert','92392':'High Desert','92647':'West / OC','92782':'West / OC','92701':'West / OC','92122':'West / OC','92603':'West / OC','92807':'West / OC','92808':'West / OC','92887':'West / OC','91910':'West / OC'};
-const REGION_ORDER=['Riverside City','Hemet','San Jacinto / Menifee','Moreno Valley','Corona / Norco','Murrieta / Temecula','Sun City / Wildomar','Colton / Rialto / SB','Chino / Pomona','High Desert','Low Desert','West / OC'];
 
 let rows=[],todayRows=[],overdueInt=[],overdueExt=[];
 let sortState={today:{col:'nextDate',dir:'asc'},int:{col:'days',dir:'desc'},ext:{col:'days',dir:'desc'}};
@@ -437,18 +448,6 @@ function markActive(inputId,btnId){
   if(btn) btn.classList.toggle('has-value', el.value!=='');
 }
 
-// region dropdowns
-function populateRegions(usedRegions){
-  ['today','int','ext'].forEach(tab=>{
-    const sel=document.getElementById('cf-'+tab+'-region');
-    while(sel.options.length>1) sel.remove(1);
-    REGION_ORDER.filter(r=>usedRegions.has(r)).forEach(r=>{
-      const o=document.createElement('option');
-      o.value=r; o.textContent=r; sel.appendChild(o);
-    });
-  });
-}
-
 // fetch
 async function loadCSV(){
   const bar=document.getElementById('status-bar'),sp=document.getElementById('spinner'),msg=document.getElementById('status-msg');
@@ -477,13 +476,6 @@ function splitLine(line){
 }
 function parseD(s){
   if(!s||!s.trim()||s.trim()==='-') return null;
-  // Handle MM/DD/YYYY format explicitly to avoid UTC vs local timezone issues
-  const mdy = s.trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-  if(mdy){
-    const d = new Date(+mdy[3], +mdy[1]-1, +mdy[2]);
-    d.setHours(0,0,0,0);
-    return d;
-  }
   const d=new Date(s.trim()); if(isNaN(d)) return null;
   if(d.getFullYear()>3000) return null;
   d.setHours(0,0,0,0); return d;
@@ -517,16 +509,20 @@ function ingest(text){
     const lastInt=parseD(g(c,3));
     return {label:buildLabel(c,g),city:g(c,12),zip,region:z2r(zip),propType:pt,tenant:g(c,8),lastInt,lastExt,nextDate,nextTime};
   }).filter(r=>r&&(r.city||r.propType));
-  const usedRegions=new Set(rows.map(r=>r.region).filter(r=>r&&r!=='Other'));
-  populateRegions(usedRegions);
   process();
 }
 
 function process(){
   todayRows=rows.filter(r=>r.nextDate&&r.nextDate.getTime()===today.getTime());
+  const VALID_SLOTS=['9:00 AM to 11:00 AM','11:00 AM to 1:00 PM','1:00 PM to 3:00 PM','3:00 PM to 4:00 PM'];
   overdueInt=rows.filter(r=>{
     if(!r.tenant||r.tenant.trim()==='') return false;
-    const d=diff(r.lastInt); return d===null||d>INT_DAYS;
+    const d=diff(r.lastInt); if(!(d===null||d>INT_DAYS)) return false;
+    // Exclude if next date is Jan 1 9999 (intentional placeholder)
+    if(r.nextDate&&r.nextDate.getFullYear()===9999) return false;
+    // Exclude if already scheduled in the future with a real time slot
+    if(isFuture(r.nextDate)&&VALID_SLOTS.includes(r.nextTime)) return false;
+    return true;
   });
   overdueExt=rows.filter(r=>{
     if(!r.tenant||r.tenant.trim()==='') return false;
@@ -597,7 +593,7 @@ function rerender(tab){
 
 function renderToday(){
   const fP=cfv('cf-today-prop'),fR=cfv('cf-today-region'),fT=cfv('cf-today-type'),fTm=cfv('cf-today-time');
-  let d=todayRows.filter(r=>match(r.label,fP)&&(!fR||r.region===fR)&&(!fT||r.propType===fT)&&(!fTm||r.nextTime===fTm));
+  let d=todayRows.filter(r=>match(r.label,fP)&&(!fR||(fR==='commercial'?r.propType==='Commercial':r.propType!=='Commercial'))&&(!fT||r.propType===fT)&&(!fTm||r.nextTime===fTm));
   d=applySort(d,'today'); updateSortBtns('today');
   const tb=document.getElementById('tb-today');
   if(!d.length){tb.innerHTML=`<tr><td colspan="6"><div class="empty"><p>No inspections scheduled for today match your filter.</p></div></td></tr>`;return;}
@@ -609,7 +605,7 @@ function renderToday(){
 
 function renderInt(){
   const fP=cfv('cf-int-prop'),fR=cfv('cf-int-region'),fT=cfv('cf-int-type'),fTm=cfv('cf-int-time');
-  let d=overdueInt.filter(r=>match(r.label,fP)&&(!fR||r.region===fR)&&(!fT||r.propType===fT)&&(!fTm||(r.nextTime||'')===(fTm)));
+  let d=overdueInt.filter(r=>match(r.label,fP)&&(!fR||(fR==='commercial'?r.propType==='Commercial':r.propType!=='Commercial'))&&(!fT||r.propType===fT)&&(!fTm||(r.nextTime||'')===(fTm)));
   d=applySort(d,'int'); updateSortBtns('int');
   const tb=document.getElementById('tb-int');
   if(!d.length){tb.innerHTML=`<tr><td colspan="7"><div class="empty"><p>No overdue interiors match your filter.</p></div></td></tr>`;return;}
@@ -623,7 +619,7 @@ function renderInt(){
 
 function renderExt(){
   const fP=cfv('cf-ext-prop'),fR=cfv('cf-ext-region'),fT=cfv('cf-ext-type');
-  let d=overdueExt.filter(r=>match(r.label,fP)&&(!fR||r.region===fR)&&(!fT||r.propType===fT));
+  let d=overdueExt.filter(r=>match(r.label,fP)&&(!fR||(fR==='commercial'?r.propType==='Commercial':r.propType!=='Commercial'))&&(!fT||r.propType===fT));
   d=applySort(d,'ext'); updateSortBtns('ext');
   const tb=document.getElementById('tb-ext');
   if(!d.length){tb.innerHTML=`<tr><td colspan="5"><div class="empty"><p>No overdue exteriors match your filter.</p></div></td></tr>`;return;}
