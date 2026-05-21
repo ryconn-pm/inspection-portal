@@ -477,6 +477,13 @@ function splitLine(line){
 }
 function parseD(s){
   if(!s||!s.trim()||s.trim()==='-') return null;
+  // Handle MM/DD/YYYY format explicitly to avoid UTC vs local timezone issues
+  const mdy = s.trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if(mdy){
+    const d = new Date(+mdy[3], +mdy[1]-1, +mdy[2]);
+    d.setHours(0,0,0,0);
+    return d;
+  }
   const d=new Date(s.trim()); if(isNaN(d)) return null;
   if(d.getFullYear()>3000) return null;
   d.setHours(0,0,0,0); return d;
