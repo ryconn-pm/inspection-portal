@@ -213,9 +213,28 @@
 <!-- OVERDUE INTERIORS -->
 <div class="panel" id="panel-int">
   <div class="stats">
-    <div class="sc red"><div class="lbl">Overdue Interiors</div><div class="val" id="s-oint">—</div></div>
+    <div class="sc red"><div class="lbl">Total Overdue</div><div class="val" id="s-oint">—</div></div>
+    <div class="sc blue"><div class="lbl">Residential</div><div class="val" id="s-oint-res">—</div></div>
+    <div class="sc br"><div class="lbl">Commercial</div><div class="val" id="s-oint-com">—</div></div>
     <div class="sc or"><div class="lbl">Threshold</div><div class="val">365d</div></div>
   </div>
+
+  <!-- Class filter bar -->
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center;">
+    <span style="font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-right:2px;">Show:</span>
+    <select id="cf-int-class"
+      style="font-family:'DM Sans',sans-serif;font-size:12px;padding:5px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);color:var(--text);outline:none;cursor:pointer;"
+      onchange="rerender('int');">
+      <option value="">All Classes</option>
+      <option value="residential">Residential (SF + MF)</option>
+      <option value="commercial">Commercial</option>
+    </select>
+    <button onclick="document.getElementById('cf-int-class').value='';rerender('int');"
+      style="font-family:'DM Sans',sans-serif;font-size:11px;padding:5px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);background:none;color:var(--muted);cursor:pointer;">
+      Clear
+    </button>
+  </div>
+
   <div class="sec-lbl">Last interior inspection was more than 365 days ago</div>
   <div class="tbl-wrap">
     <table>
@@ -307,9 +326,28 @@
 <!-- OVERDUE EXTERIORS -->
 <div class="panel" id="panel-ext">
   <div class="stats">
-    <div class="sc red"><div class="lbl">Overdue Exteriors</div><div class="val" id="s-oext">—</div></div>
+    <div class="sc red"><div class="lbl">Total Overdue</div><div class="val" id="s-oext">—</div></div>
+    <div class="sc blue"><div class="lbl">Residential</div><div class="val" id="s-oext-res">—</div></div>
+    <div class="sc br"><div class="lbl">Commercial</div><div class="val" id="s-oext-com">—</div></div>
     <div class="sc or"><div class="lbl">Threshold</div><div class="val">183d</div></div>
   </div>
+
+  <!-- Class filter bar -->
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center;">
+    <span style="font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-right:2px;">Show:</span>
+    <select id="cf-ext-class"
+      style="font-family:'DM Sans',sans-serif;font-size:12px;padding:5px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);color:var(--text);outline:none;cursor:pointer;"
+      onchange="rerender('ext');">
+      <option value="">All Classes</option>
+      <option value="residential">Residential (SF + MF)</option>
+      <option value="commercial">Commercial</option>
+    </select>
+    <button onclick="document.getElementById('cf-ext-class').value='';rerender('ext');"
+      style="font-family:'DM Sans',sans-serif;font-size:11px;padding:5px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);background:none;color:var(--muted);cursor:pointer;">
+      Clear
+    </button>
+  </div>
+
   <div class="sec-lbl">Last exterior inspection was more than 183 days ago</div>
   <div class="tbl-wrap">
     <table>
@@ -507,7 +545,11 @@ function process(){
   document.getElementById('s-mf').textContent=upcomingRows.filter(r=>r.propType==='Multi-Family').length;
   document.getElementById('s-com').textContent=upcomingRows.filter(r=>r.propType==='Commercial').length;
   document.getElementById('s-oint').textContent=overdueInt.length;
+  document.getElementById('s-oint-res').textContent=overdueInt.filter(r=>r.propType!=='Commercial').length;
+  document.getElementById('s-oint-com').textContent=overdueInt.filter(r=>r.propType==='Commercial').length;
   document.getElementById('s-oext').textContent=overdueExt.length;
+  document.getElementById('s-oext-res').textContent=overdueExt.filter(r=>r.propType!=='Commercial').length;
+  document.getElementById('s-oext-com').textContent=overdueExt.filter(r=>r.propType==='Commercial').length;
   document.getElementById('b-today').textContent=upcomingRows.length;
   document.getElementById('b-int').textContent=overdueInt.length;
   document.getElementById('b-ext').textContent=overdueExt.length;
@@ -652,8 +694,10 @@ function renderToday(){
 }
 
 function renderInt(){
-  const fP=cfv('cf-int-prop'),fR=cfv('cf-int-region'),fT=cfv('cf-int-type'),fTm=cfv('cf-int-time');
-  let d=overdueInt.filter(r=>match(r.label,fP)&&(!fR||(fR==='commercial'?r.propType==='Commercial':r.propType!=='Commercial'))&&(!fT||r.propType===fT)&&(!fTm||(r.nextTime||'')===(fTm)));
+  const fP=cfv('cf-int-prop'),fTp=cfv('cf-int-type'),fTm=cfv('cf-int-time');
+  // cf-int-class (top bar) takes precedence; fall back to the column hamburger cf-int-region
+  const fR=cfv('cf-int-class')||cfv('cf-int-region');
+  let d=overdueInt.filter(r=>match(r.label,fP)&&(!fR||(fR==='commercial'?r.propType==='Commercial':r.propType!=='Commercial'))&&(!fTp||r.propType===fTp)&&(!fTm||(r.nextTime||'')===(fTm)));
   d=applySort(d,'int'); updateSortBtns('int');
   const tb=document.getElementById('tb-int');
   if(!d.length){tb.innerHTML=`<tr><td colspan="7"><div class="empty"><p>No overdue interiors match your filter.</p></div></td></tr>`;return;}
@@ -666,8 +710,10 @@ function renderInt(){
 }
 
 function renderExt(){
-  const fP=cfv('cf-ext-prop'),fR=cfv('cf-ext-region'),fT=cfv('cf-ext-type');
-  let d=overdueExt.filter(r=>match(r.label,fP)&&(!fR||(fR==='commercial'?r.propType==='Commercial':r.propType!=='Commercial'))&&(!fT||r.propType===fT));
+  const fP=cfv('cf-ext-prop'),fTp=cfv('cf-ext-type');
+  // cf-ext-class (top bar) takes precedence; fall back to the column hamburger cf-ext-region
+  const fR=cfv('cf-ext-class')||cfv('cf-ext-region');
+  let d=overdueExt.filter(r=>match(r.label,fP)&&(!fR||(fR==='commercial'?r.propType==='Commercial':r.propType!=='Commercial'))&&(!fTp||r.propType===fTp));
   d=applySort(d,'ext'); updateSortBtns('ext');
   const tb=document.getElementById('tb-ext');
   if(!d.length){tb.innerHTML=`<tr><td colspan="5"><div class="empty"><p>No overdue exteriors match your filter.</p></div></td></tr>`;return;}
