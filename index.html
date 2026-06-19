@@ -125,6 +125,16 @@
   .day-section .tbl-wrap{border-radius:0 0 var(--radius) var(--radius);}
   .day-empty{background:var(--surface);border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius) var(--radius);padding:14px 16px;font-size:12px;color:var(--muted);font-style:italic;}
 
+  /* upcoming inspections table — fixed widths so columns line up across every day section */
+  table.upcoming-table{table-layout:fixed;}
+  table.upcoming-table th:nth-child(1),table.upcoming-table td:nth-child(1){width:30%;}
+  table.upcoming-table th:nth-child(2),table.upcoming-table td:nth-child(2){width:16%;}
+  table.upcoming-table th:nth-child(3),table.upcoming-table td:nth-child(3){width:11%;}
+  table.upcoming-table th:nth-child(4),table.upcoming-table td:nth-child(4){width:9%;}
+  table.upcoming-table th:nth-child(5),table.upcoming-table td:nth-child(5){width:17%;}
+  table.upcoming-table th:nth-child(6),table.upcoming-table td:nth-child(6){width:17%;}
+  table.upcoming-table td{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
   @media(max-width:600px){
     header,.status-bar,.panel{padding-left:14px;padding-right:14px;}
     .tabs{padding:0 14px;}
@@ -206,6 +216,22 @@
     <button onclick="clearUpcomingFilters()"
       style="font-family:'DM Sans',sans-serif;font-size:11px;padding:5px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);background:none;color:var(--muted);cursor:pointer;">
       Clear
+    </button>
+  </div>
+
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+    <button id="btn-week-prev" onclick="changeWeek(-1)"
+      style="font-family:'DM Sans',sans-serif;font-size:12px;padding:6px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);color:var(--text);cursor:pointer;">
+      ← Previous Week
+    </button>
+    <span id="upcoming-week-range" style="font-size:12px;font-weight:600;color:var(--muted);font-family:'DM Mono',monospace;min-width:160px;text-align:center;"></span>
+    <button id="btn-week-next" onclick="changeWeek(1)"
+      style="font-family:'DM Sans',sans-serif;font-size:12px;padding:6px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);color:var(--text);cursor:pointer;">
+      Next Week →
+    </button>
+    <button id="btn-week-today" onclick="changeWeek(0,true)"
+      style="font-family:'DM Sans',sans-serif;font-size:11px;padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);background:none;color:var(--muted);cursor:pointer;">
+      Jump to Today
     </button>
   </div>
 
@@ -427,6 +453,7 @@ const CSV_URL='https://raw.githubusercontent.com/ryconn-pm/inspection-portal/mai
 const ZIP_REGION={'92543':'Hemet','92544':'Hemet','92545':'Hemet','92548':'Hemet','92586':'Hemet','92501':'Riverside City','92503':'Riverside City','92504':'Riverside City','92505':'Riverside City','92506':'Riverside City','92507':'Riverside City','92508':'Riverside City','92509':'Riverside City','92582':'San Jacinto / Menifee','92583':'San Jacinto / Menifee','92584':'San Jacinto / Menifee','92585':'San Jacinto / Menifee','92530':'San Jacinto / Menifee','92532':'San Jacinto / Menifee','92223':'San Jacinto / Menifee','92879':'Corona / Norco','92880':'Corona / Norco','92881':'Corona / Norco','92882':'Corona / Norco','92883':'Corona / Norco','92878':'Corona / Norco','92860':'Corona / Norco','92562':'Murrieta / Temecula','92563':'Murrieta / Temecula','92591':'Murrieta / Temecula','92592':'Murrieta / Temecula','92596':'Murrieta / Temecula','92320':'Colton / Rialto / SB','92324':'Colton / Rialto / SB','92334':'Colton / Rialto / SB','92335':'Colton / Rialto / SB','92336':'Colton / Rialto / SB','92337':'Colton / Rialto / SB','92354':'Colton / Rialto / SB','92374':'Colton / Rialto / SB','92376':'Colton / Rialto / SB','92404':'Colton / Rialto / SB','92405':'Colton / Rialto / SB','92410':'Colton / Rialto / SB','92551':'Moreno Valley','92553':'Moreno Valley','92555':'Moreno Valley','92557':'Moreno Valley','92570':'Moreno Valley','91709':'Chino / Pomona','91710':'Chino / Pomona','91711':'Chino / Pomona','91730':'Chino / Pomona','91739':'Chino / Pomona','91752':'Chino / Pomona','91761':'Chino / Pomona','91766':'Chino / Pomona','91767':'Chino / Pomona','92587':'Sun City / Wildomar','92595':'Sun City / Wildomar','92240':'Low Desert','92234':'Low Desert','92440':'Low Desert','92345':'High Desert','92392':'High Desert','92647':'West / OC','92782':'West / OC','92701':'West / OC','92122':'West / OC','92603':'West / OC','92807':'West / OC','92808':'West / OC','92887':'West / OC','91910':'West / OC'};
 
 let rows=[],upcomingRows=[],overdueInt=[],overdueExt=[],commercialRows=[];
+let weekOffset=0;
 let sortState={int:{col:'days',dir:'desc'},ext:{col:'days',dir:'desc'},com:{col:'label',dir:'asc'}};
 const today=new Date(); today.setHours(0,0,0,0);
 
@@ -531,8 +558,10 @@ function ingest(text){
 }
 
 function process(){
-  const weekEnd=new Date(today.getTime()+7*24*60*60*1000);
-  upcomingRows=rows.filter(r=>r.nextDate&&r.nextDate>=today&&r.nextDate<weekEnd);
+  const next7End=new Date(today.getTime()+7*24*60*60*1000);
+  const horizonEnd=new Date(today.getTime()+84*24*60*60*1000); // ~12 weeks ahead
+  upcomingRows=rows.filter(r=>r.nextDate&&r.nextDate>=today&&r.nextDate.getFullYear()<9000&&r.nextDate<horizonEnd);
+  const next7Rows=upcomingRows.filter(r=>r.nextDate<next7End);
   const VALID_SLOTS=['9:00 AM to 11:00 AM','11:00 AM to 1:00 PM','1:00 PM to 3:00 PM','3:00 PM to 4:00 PM'];
   overdueInt=rows.filter(r=>{
     if(r.propType==='Commercial') return false;
@@ -550,10 +579,10 @@ function process(){
     const d=diff(r.lastExt); return d===null||d>EXT_DAYS;
   });
   commercialRows=rows.filter(r=>r.propType==='Commercial');
-  document.getElementById('s-total').textContent=upcomingRows.length;
-  document.getElementById('s-sf').textContent=upcomingRows.filter(r=>r.propType==='Single-Family').length;
-  document.getElementById('s-mf').textContent=upcomingRows.filter(r=>r.propType==='Multi-Family').length;
-  document.getElementById('s-com').textContent=upcomingRows.filter(r=>r.propType==='Commercial').length;
+  document.getElementById('s-total').textContent=next7Rows.length;
+  document.getElementById('s-sf').textContent=next7Rows.filter(r=>r.propType==='Single-Family').length;
+  document.getElementById('s-mf').textContent=next7Rows.filter(r=>r.propType==='Multi-Family').length;
+  document.getElementById('s-com').textContent=next7Rows.filter(r=>r.propType==='Commercial').length;
   document.getElementById('s-oint').textContent=overdueInt.length;
   document.getElementById('s-oint-sf').textContent=overdueInt.filter(r=>r.propType==='Single-Family').length;
   document.getElementById('s-oint-mf').textContent=overdueInt.filter(r=>r.propType==='Multi-Family').length;
@@ -563,7 +592,7 @@ function process(){
   document.getElementById('s-com-total').textContent=commercialRows.length;
   document.getElementById('s-com-oint').textContent=commercialRows.filter(r=>{const d=diff(r.lastInt);return d===null||d>INT_DAYS;}).length;
   document.getElementById('s-com-oext').textContent=commercialRows.filter(r=>{const d=diff(r.lastExt);return d===null||d>EXT_DAYS;}).length;
-  document.getElementById('b-today').textContent=upcomingRows.length;
+  document.getElementById('b-today').textContent=next7Rows.length;
   document.getElementById('b-int').textContent=overdueInt.length;
   document.getElementById('b-ext').textContent=overdueExt.length;
   document.getElementById('b-com').textContent=commercialRows.length;
@@ -630,7 +659,13 @@ function clearUpcomingFilters(){
   document.getElementById('cf-today-region').value='';
   document.getElementById('cf-today-type').value='';
   document.getElementById('cf-today-time').value='';
+  weekOffset=0;
   rerender('today');
+}
+
+function changeWeek(delta,jumpToToday){
+  weekOffset=jumpToToday?0:Math.max(0,weekOffset+delta);
+  renderToday();
 }
 
 function renderToday(){
@@ -646,13 +681,27 @@ function renderToday(){
     (!fTm||r.nextTime===fTm)
   );
 
+  const weekStart=new Date(today.getTime()+weekOffset*7*24*60*60*1000);
+  const nextWeekStart=new Date(weekStart.getTime()+7*24*60*60*1000);
+  const weekEndDisp=new Date(weekStart.getTime()+6*24*60*60*1000);
+
+  // range label
+  const rangeLbl=`${MON_NAMES[weekStart.getMonth()]} ${weekStart.getDate()} – ${MON_NAMES[weekEndDisp.getMonth()]} ${weekEndDisp.getDate()}`;
+  document.getElementById('upcoming-week-range').textContent=rangeLbl;
+  document.getElementById('btn-week-prev').disabled=weekOffset===0;
+  document.getElementById('btn-week-prev').style.opacity=weekOffset===0?'.4':'1';
+  document.getElementById('btn-week-prev').style.cursor=weekOffset===0?'default':'pointer';
+  const hasMore=filtered.some(r=>r.nextDate&&r.nextDate>=nextWeekStart);
+  document.getElementById('btn-week-next').disabled=!hasMore;
+  document.getElementById('btn-week-next').style.opacity=hasMore?'1':'.4';
+  document.getElementById('btn-week-next').style.cursor=hasMore?'pointer':'default';
+
   // Build 7 day buckets
   const wrap=document.getElementById('upcoming-week');
   wrap.innerHTML='';
-  let anyRows=false;
 
   for(let i=0;i<7;i++){
-    const dayDt=new Date(today.getTime()+i*24*60*60*1000);
+    const dayDt=new Date(weekStart.getTime()+i*24*60*60*1000);
     const dayRows=filtered.filter(r=>r.nextDate&&r.nextDate.getTime()===dayDt.getTime());
     // Sort within day by time slot order then label
     dayRows.sort((a,b)=>{
@@ -662,7 +711,7 @@ function renderToday(){
       return (a.label||'').localeCompare(b.label||'');
     });
 
-    const isToday=i===0;
+    const isToday=dayDt.getTime()===today.getTime();
     const dayName=isToday?'Today':DAY_NAMES[dayDt.getDay()];
     const dayDateStr=`${MON_NAMES[dayDt.getMonth()]} ${dayDt.getDate()}`;
 
@@ -680,10 +729,9 @@ function renderToday(){
       empty.textContent='No inspections scheduled';
       section.appendChild(empty);
     } else {
-      anyRows=true;
       const tblWrap=document.createElement('div');
       tblWrap.className='tbl-wrap';
-      tblWrap.innerHTML=`<table>
+      tblWrap.innerHTML=`<table class="upcoming-table">
         <thead><tr class="hdr">
           <th><div class="th-inner"><span class="th-label">Property</span></div></th>
           <th><div class="th-inner"><span class="th-label">City</span></div></th>
