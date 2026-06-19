@@ -46,6 +46,7 @@
   .tab.active:nth-child(1) .badge{background:var(--navy-mid);color:white;}
   .tab.active:nth-child(2) .badge{background:var(--orange);color:white;}
   .tab.active:nth-child(3) .badge{background:var(--danger);color:white;}
+  .tab.active:nth-child(4) .badge{background:#5b2d8a;color:white;}
 
   /* panels */
   .panel{display:none;padding:22px 28px;}
@@ -152,6 +153,7 @@
   <div class="tab active" data-tab="today">Upcoming Inspections <span class="badge" id="b-today">0</span></div>
   <div class="tab" data-tab="int">Overdue Interiors <span class="badge" id="b-int">0</span></div>
   <div class="tab" data-tab="ext">Overdue Exteriors <span class="badge" id="b-ext">0</span></div>
+  <div class="tab" data-tab="com">Commercial <span class="badge" id="b-com">0</span></div>
 </div>
 
 <!-- UPCOMING -->
@@ -214,28 +216,12 @@
 <div class="panel" id="panel-int">
   <div class="stats">
     <div class="sc red"><div class="lbl">Total Overdue</div><div class="val" id="s-oint">—</div></div>
-    <div class="sc blue"><div class="lbl">Residential</div><div class="val" id="s-oint-res">—</div></div>
-    <div class="sc br"><div class="lbl">Commercial</div><div class="val" id="s-oint-com">—</div></div>
+    <div class="sc blue"><div class="lbl">Single-Family</div><div class="val" id="s-oint-sf">—</div></div>
+    <div class="sc pu"><div class="lbl">Multi-Family</div><div class="val" id="s-oint-mf">—</div></div>
     <div class="sc or"><div class="lbl">Threshold</div><div class="val">365d</div></div>
   </div>
 
-  <!-- Class filter bar -->
-  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center;">
-    <span style="font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-right:2px;">Show:</span>
-    <select id="cf-int-class"
-      style="font-family:'DM Sans',sans-serif;font-size:12px;padding:5px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);color:var(--text);outline:none;cursor:pointer;"
-      onchange="rerender('int');">
-      <option value="">All Classes</option>
-      <option value="residential">Residential (SF + MF)</option>
-      <option value="commercial">Commercial</option>
-    </select>
-    <button onclick="document.getElementById('cf-int-class').value='';rerender('int');"
-      style="font-family:'DM Sans',sans-serif;font-size:11px;padding:5px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);background:none;color:var(--muted);cursor:pointer;">
-      Clear
-    </button>
-  </div>
-
-  <div class="sec-lbl">Last interior inspection was more than 365 days ago</div>
+  <div class="sec-lbl">Last interior inspection was more than 365 days ago — residential only</div>
   <div class="tbl-wrap">
     <table>
       <thead><tr class="hdr">
@@ -253,16 +239,11 @@
         <th>
           <div class="th-inner">
             <span class="th-label">City</span>
-            <button class="flt-btn" id="fbtn-int-region" onclick="toggleFilter(event,'fpop-int-region','fbtn-int-region')"><span></span><span></span><span></span></button>
           </div>
-          <div class="flt-popup" id="fpop-int-region">
-            <div class="flt-lbl">Property class</div>
-            <select id="cf-int-region">
-              <option value="">All</option>
-              <option value="residential">Residential</option>
-              <option value="commercial">Commercial</option>
-            </select>
-            <button class="flt-clr" onclick="clearFlt('cf-int-region','fbtn-int-region','int')">Clear</button>
+        </th>
+        <th>
+          <div class="th-inner">
+            <span class="th-label">Zip</span>
           </div>
         </th>
         <th>
@@ -276,7 +257,6 @@
               <option value="">All</option>
               <option value="Single-Family">Single-Family</option>
               <option value="Multi-Family">Multi-Family</option>
-              <option value="Commercial">Commercial</option>
             </select>
             <button class="flt-clr" onclick="clearFlt('cf-int-type','fbtn-int-type','int')">Clear</button>
           </div>
@@ -327,28 +307,12 @@
 <div class="panel" id="panel-ext">
   <div class="stats">
     <div class="sc red"><div class="lbl">Total Overdue</div><div class="val" id="s-oext">—</div></div>
-    <div class="sc blue"><div class="lbl">Residential</div><div class="val" id="s-oext-res">—</div></div>
-    <div class="sc br"><div class="lbl">Commercial</div><div class="val" id="s-oext-com">—</div></div>
+    <div class="sc blue"><div class="lbl">Single-Family</div><div class="val" id="s-oext-sf">—</div></div>
+    <div class="sc pu"><div class="lbl">Multi-Family</div><div class="val" id="s-oext-mf">—</div></div>
     <div class="sc or"><div class="lbl">Threshold</div><div class="val">183d</div></div>
   </div>
 
-  <!-- Class filter bar -->
-  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center;">
-    <span style="font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-right:2px;">Show:</span>
-    <select id="cf-ext-class"
-      style="font-family:'DM Sans',sans-serif;font-size:12px;padding:5px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);color:var(--text);outline:none;cursor:pointer;"
-      onchange="rerender('ext');">
-      <option value="">All Classes</option>
-      <option value="residential">Residential (SF + MF)</option>
-      <option value="commercial">Commercial</option>
-    </select>
-    <button onclick="document.getElementById('cf-ext-class').value='';rerender('ext');"
-      style="font-family:'DM Sans',sans-serif;font-size:11px;padding:5px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);background:none;color:var(--muted);cursor:pointer;">
-      Clear
-    </button>
-  </div>
-
-  <div class="sec-lbl">Last exterior inspection was more than 183 days ago</div>
+  <div class="sec-lbl">Last exterior inspection was more than 183 days ago — residential only</div>
   <div class="tbl-wrap">
     <table>
       <thead><tr class="hdr">
@@ -366,16 +330,11 @@
         <th>
           <div class="th-inner">
             <span class="th-label">City</span>
-            <button class="flt-btn" id="fbtn-ext-region" onclick="toggleFilter(event,'fpop-ext-region','fbtn-ext-region')"><span></span><span></span><span></span></button>
           </div>
-          <div class="flt-popup" id="fpop-ext-region">
-            <div class="flt-lbl">Property class</div>
-            <select id="cf-ext-region">
-              <option value="">All</option>
-              <option value="residential">Residential</option>
-              <option value="commercial">Commercial</option>
-            </select>
-            <button class="flt-clr" onclick="clearFlt('cf-ext-region','fbtn-ext-region','ext')">Clear</button>
+        </th>
+        <th>
+          <div class="th-inner">
+            <span class="th-label">Zip</span>
           </div>
         </th>
         <th>
@@ -389,7 +348,6 @@
               <option value="">All</option>
               <option value="Single-Family">Single-Family</option>
               <option value="Multi-Family">Multi-Family</option>
-              <option value="Commercial">Commercial</option>
             </select>
             <button class="flt-clr" onclick="clearFlt('cf-ext-type','fbtn-ext-type','ext')">Clear</button>
           </div>
@@ -412,14 +370,64 @@
   </div>
 </div>
 
+<!-- COMMERCIAL -->
+<div class="panel" id="panel-com">
+  <div class="stats">
+    <div class="sc navy"><div class="lbl">Total Commercial</div><div class="val" id="s-com-total">—</div></div>
+    <div class="sc red"><div class="lbl">Overdue Interior</div><div class="val" id="s-com-oint">—</div></div>
+    <div class="sc or"><div class="lbl">Overdue Exterior</div><div class="val" id="s-com-oext">—</div></div>
+  </div>
+
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center;">
+    <span style="font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-right:2px;">Filter:</span>
+    <input type="text" id="cf-com-prop" placeholder="Search property…"
+      style="font-family:'DM Sans',sans-serif;font-size:12px;padding:5px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);color:var(--text);outline:none;width:180px;">
+    <button onclick="document.getElementById('cf-com-prop').value='';rerender('com');"
+      style="font-family:'DM Sans',sans-serif;font-size:11px;padding:5px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);background:none;color:var(--muted);cursor:pointer;">
+      Clear
+    </button>
+  </div>
+
+  <div class="sec-lbl">All commercial properties — interior &amp; exterior inspection history and next scheduled date</div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr class="hdr">
+        <th><div class="th-inner"><span class="th-label">Property</span></div></th>
+        <th><div class="th-inner"><span class="th-label">City</span></div></th>
+        <th><div class="th-inner"><span class="th-label">Zip</span></div></th>
+        <th>
+          <div class="th-inner">
+            <span class="th-label">Last Interior</span>
+            <button class="sort-btn" id="sort-com-lastInt" onclick="sortTable('com','lastInt')"></button>
+          </div>
+        </th>
+        <th>
+          <div class="th-inner">
+            <span class="th-label">Last Exterior</span>
+            <button class="sort-btn" id="sort-com-lastExt" onclick="sortTable('com','lastExt')"></button>
+          </div>
+        </th>
+        <th>
+          <div class="th-inner">
+            <span class="th-label">Next Inspection</span>
+            <button class="sort-btn" id="sort-com-nextDate" onclick="sortTable('com','nextDate')"></button>
+          </div>
+        </th>
+        <th><div class="th-inner"><span class="th-label">Time</span></div></th>
+      </tr></thead>
+      <tbody id="tb-com"></tbody>
+    </table>
+  </div>
+</div>
+
 <script>
 const INT_DAYS=365,EXT_DAYS=183;
 const CSV_URL='https://raw.githubusercontent.com/ryconn-pm/inspection-portal/main/data/report.csv';
 
 const ZIP_REGION={'92543':'Hemet','92544':'Hemet','92545':'Hemet','92548':'Hemet','92586':'Hemet','92501':'Riverside City','92503':'Riverside City','92504':'Riverside City','92505':'Riverside City','92506':'Riverside City','92507':'Riverside City','92508':'Riverside City','92509':'Riverside City','92582':'San Jacinto / Menifee','92583':'San Jacinto / Menifee','92584':'San Jacinto / Menifee','92585':'San Jacinto / Menifee','92530':'San Jacinto / Menifee','92532':'San Jacinto / Menifee','92223':'San Jacinto / Menifee','92879':'Corona / Norco','92880':'Corona / Norco','92881':'Corona / Norco','92882':'Corona / Norco','92883':'Corona / Norco','92878':'Corona / Norco','92860':'Corona / Norco','92562':'Murrieta / Temecula','92563':'Murrieta / Temecula','92591':'Murrieta / Temecula','92592':'Murrieta / Temecula','92596':'Murrieta / Temecula','92320':'Colton / Rialto / SB','92324':'Colton / Rialto / SB','92334':'Colton / Rialto / SB','92335':'Colton / Rialto / SB','92336':'Colton / Rialto / SB','92337':'Colton / Rialto / SB','92354':'Colton / Rialto / SB','92374':'Colton / Rialto / SB','92376':'Colton / Rialto / SB','92404':'Colton / Rialto / SB','92405':'Colton / Rialto / SB','92410':'Colton / Rialto / SB','92551':'Moreno Valley','92553':'Moreno Valley','92555':'Moreno Valley','92557':'Moreno Valley','92570':'Moreno Valley','91709':'Chino / Pomona','91710':'Chino / Pomona','91711':'Chino / Pomona','91730':'Chino / Pomona','91739':'Chino / Pomona','91752':'Chino / Pomona','91761':'Chino / Pomona','91766':'Chino / Pomona','91767':'Chino / Pomona','92587':'Sun City / Wildomar','92595':'Sun City / Wildomar','92240':'Low Desert','92234':'Low Desert','92440':'Low Desert','92345':'High Desert','92392':'High Desert','92647':'West / OC','92782':'West / OC','92701':'West / OC','92122':'West / OC','92603':'West / OC','92807':'West / OC','92808':'West / OC','92887':'West / OC','91910':'West / OC'};
 
-let rows=[],upcomingRows=[],overdueInt=[],overdueExt=[];
-let sortState={int:{col:'days',dir:'desc'},ext:{col:'days',dir:'desc'}};
+let rows=[],upcomingRows=[],overdueInt=[],overdueExt=[],commercialRows=[];
+let sortState={int:{col:'days',dir:'desc'},ext:{col:'days',dir:'desc'},com:{col:'label',dir:'asc'}};
 const today=new Date(); today.setHours(0,0,0,0);
 
 document.getElementById('hdr-date').textContent=today.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
@@ -497,10 +505,10 @@ function isFuture(d){ return d&&d.getTime()>today.getTime(); }
 function z2r(zip){ return ZIP_REGION[String(zip||'').trim().substring(0,5)]||'Other'; }
 
 function buildLabel(c,g){
-  const addr=g(c,11),unit=g(c,1),city=g(c,12),propStr=g(c,0);
+  const addr1=g(c,23),addr2=g(c,24),city=g(c,12),propStr=g(c,0);
+  const addr=addr1&&addr2?`${addr1}, ${addr2}`:(addr1||addr2);
   if(addr){
-    const ul=unit&&unit!==addr&&unit.length<=6?`, Unit ${unit}`:'';
-    return `${addr}${ul}${city?', '+city:''}`;
+    return `${addr}${city?', '+city:''}`;
   }
   if(propStr&&propStr.includes(' - ')) return propStr.split(' - ').slice(1).join(' - ').trim();
   return propStr||city||'—';
@@ -528,6 +536,7 @@ function process(){
   upcomingRows=rows.filter(r=>r.nextDate&&r.nextDate>=today&&r.nextDate<weekEnd);
   const VALID_SLOTS=['9:00 AM to 11:00 AM','11:00 AM to 1:00 PM','1:00 PM to 3:00 PM','3:00 PM to 4:00 PM'];
   overdueInt=rows.filter(r=>{
+    if(r.propType==='Commercial') return false;
     if(!r.tenant||r.tenant.trim()==='') return false;
     const d=diff(r.lastInt); if(!(d===null||d>INT_DAYS)) return false;
     // Exclude if next date is Jan 1 9999 (intentional placeholder)
@@ -537,23 +546,29 @@ function process(){
     return true;
   });
   overdueExt=rows.filter(r=>{
+    if(r.propType==='Commercial') return false;
     if(!r.tenant||r.tenant.trim()==='') return false;
     const d=diff(r.lastExt); return d===null||d>EXT_DAYS;
   });
+  commercialRows=rows.filter(r=>r.propType==='Commercial');
   document.getElementById('s-total').textContent=upcomingRows.length;
   document.getElementById('s-sf').textContent=upcomingRows.filter(r=>r.propType==='Single-Family').length;
   document.getElementById('s-mf').textContent=upcomingRows.filter(r=>r.propType==='Multi-Family').length;
   document.getElementById('s-com').textContent=upcomingRows.filter(r=>r.propType==='Commercial').length;
   document.getElementById('s-oint').textContent=overdueInt.length;
-  document.getElementById('s-oint-res').textContent=overdueInt.filter(r=>r.propType!=='Commercial').length;
-  document.getElementById('s-oint-com').textContent=overdueInt.filter(r=>r.propType==='Commercial').length;
+  document.getElementById('s-oint-sf').textContent=overdueInt.filter(r=>r.propType==='Single-Family').length;
+  document.getElementById('s-oint-mf').textContent=overdueInt.filter(r=>r.propType==='Multi-Family').length;
   document.getElementById('s-oext').textContent=overdueExt.length;
-  document.getElementById('s-oext-res').textContent=overdueExt.filter(r=>r.propType!=='Commercial').length;
-  document.getElementById('s-oext-com').textContent=overdueExt.filter(r=>r.propType==='Commercial').length;
+  document.getElementById('s-oext-sf').textContent=overdueExt.filter(r=>r.propType==='Single-Family').length;
+  document.getElementById('s-oext-mf').textContent=overdueExt.filter(r=>r.propType==='Multi-Family').length;
+  document.getElementById('s-com-total').textContent=commercialRows.length;
+  document.getElementById('s-com-oint').textContent=commercialRows.filter(r=>{const d=diff(r.lastInt);return d===null||d>INT_DAYS;}).length;
+  document.getElementById('s-com-oext').textContent=commercialRows.filter(r=>{const d=diff(r.lastExt);return d===null||d>EXT_DAYS;}).length;
   document.getElementById('b-today').textContent=upcomingRows.length;
   document.getElementById('b-int').textContent=overdueInt.length;
   document.getElementById('b-ext').textContent=overdueExt.length;
-  renderToday(); renderInt(); renderExt();
+  document.getElementById('b-com').textContent=commercialRows.length;
+  renderToday(); renderInt(); renderExt(); renderCom();
 }
 
 function sortTable(tab,col){
@@ -579,6 +594,8 @@ function applySort(arr,tab){
     if(col==='lastInt'){va=a.lastInt?.getTime()??-Infinity;vb=b.lastInt?.getTime()??-Infinity;}
     else if(col==='lastExt'){va=a.lastExt?.getTime()??-Infinity;vb=b.lastExt?.getTime()??-Infinity;}
     else if(col==='nextDate'){va=a.nextDate?.getTime()??Infinity;vb=b.nextDate?.getTime()??Infinity;}
+    else if(col==='daysInt'){va=diff(a.lastInt)??-1;vb=diff(b.lastInt)??-1;}
+    else if(col==='daysExt'){va=diff(a.lastExt)??-1;vb=diff(b.lastExt)??-1;}
     else if(col==='days'){
       va=tab==='ext'?diff(a.lastExt)??99999:diff(a.lastInt)??99999;
       vb=tab==='ext'?diff(b.lastExt)??99999:diff(b.lastInt)??99999;
@@ -604,7 +621,8 @@ function match(val,f){ return !f||String(val||'').toLowerCase().includes(f.toLow
 function rerender(tab){
   if(tab==='today') renderToday();
   else if(tab==='int') renderInt();
-  else renderExt();
+  else if(tab==='ext') renderExt();
+  else renderCom();
 }
 
 function markActiveInline(id){ /* no-op, just triggers rerender */ }
@@ -670,6 +688,7 @@ function renderToday(){
         <thead><tr class="hdr">
           <th><div class="th-inner"><span class="th-label">Property</span></div></th>
           <th><div class="th-inner"><span class="th-label">City</span></div></th>
+          <th><div class="th-inner"><span class="th-label">Zip</span></div></th>
           <th><div class="th-inner"><span class="th-label">Type</span></div></th>
           <th><div class="th-inner"><span class="th-label">Time</span></div></th>
           <th><div class="th-inner"><span class="th-label">Last Interior</span></div></th>
@@ -681,6 +700,7 @@ function renderToday(){
           return `<tr>
             <td>${r.label}</td>
             <td><span style="font-size:12px;color:var(--muted)">${r.city}</span></td>
+            <td><span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--muted)">${r.zip}</span></td>
             <td>${pill(r.propType)}</td>
             <td>${time}</td>
             <td style="font-family:'DM Mono',monospace;font-size:12px" class="${r.lastInt?'':'dim'}">${fmt(r.lastInt)}</td>
@@ -695,31 +715,48 @@ function renderToday(){
 
 function renderInt(){
   const fP=cfv('cf-int-prop'),fTp=cfv('cf-int-type'),fTm=cfv('cf-int-time');
-  // cf-int-class (top bar) takes precedence; fall back to the column hamburger cf-int-region
-  const fR=cfv('cf-int-class')||cfv('cf-int-region');
-  let d=overdueInt.filter(r=>match(r.label,fP)&&(!fR||(fR==='commercial'?r.propType==='Commercial':r.propType!=='Commercial'))&&(!fTp||r.propType===fTp)&&(!fTm||(r.nextTime||'')===(fTm)));
+  let d=overdueInt.filter(r=>match(r.label,fP)&&(!fTp||r.propType===fTp)&&(!fTm||(r.nextTime||'')===(fTm)));
   d=applySort(d,'int'); updateSortBtns('int');
   const tb=document.getElementById('tb-int');
-  if(!d.length){tb.innerHTML=`<tr><td colspan="7"><div class="empty"><p>No overdue interiors match your filter.</p></div></td></tr>`;return;}
+  if(!d.length){tb.innerHTML=`<tr><td colspan="8"><div class="empty"><p>No overdue interiors match your filter.</p></div></td></tr>`;return;}
   tb.innerHTML=d.map(r=>{
     const days=diff(r.lastInt);
     const nextDisp=isFuture(r.nextDate)?`<span style="font-family:'DM Mono',monospace;font-size:12px">${fmt(r.nextDate)}</span>`:'<span class="dim">—</span>';
     const time=(!r.nextTime||r.nextTime==='Unscheduled')?'<span class="dim">—</span>':r.nextTime;
-    return `<tr><td>${r.label}</td><td><span style="font-size:12px;color:var(--muted)">${r.city}</span></td><td>${pill(r.propType)}</td><td style="font-family:'DM Mono',monospace;font-size:12px" class="${r.lastInt?'':'dim'}">${fmt(r.lastInt)}</td><td>${dayBadge(days,INT_DAYS)}</td><td>${nextDisp}</td><td style="font-family:'DM Mono',monospace;font-size:12px">${time}</td></tr>`;
+    return `<tr><td>${r.label}</td><td><span style="font-size:12px;color:var(--muted)">${r.city}</span></td><td><span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--muted)">${r.zip}</span></td><td>${pill(r.propType)}</td><td style="font-family:'DM Mono',monospace;font-size:12px" class="${r.lastInt?'':'dim'}">${fmt(r.lastInt)}</td><td>${dayBadge(days,INT_DAYS)}</td><td>${nextDisp}</td><td style="font-family:'DM Mono',monospace;font-size:12px">${time}</td></tr>`;
   }).join('');
 }
 
 function renderExt(){
   const fP=cfv('cf-ext-prop'),fTp=cfv('cf-ext-type');
-  // cf-ext-class (top bar) takes precedence; fall back to the column hamburger cf-ext-region
-  const fR=cfv('cf-ext-class')||cfv('cf-ext-region');
-  let d=overdueExt.filter(r=>match(r.label,fP)&&(!fR||(fR==='commercial'?r.propType==='Commercial':r.propType!=='Commercial'))&&(!fTp||r.propType===fTp));
+  let d=overdueExt.filter(r=>match(r.label,fP)&&(!fTp||r.propType===fTp));
   d=applySort(d,'ext'); updateSortBtns('ext');
   const tb=document.getElementById('tb-ext');
-  if(!d.length){tb.innerHTML=`<tr><td colspan="5"><div class="empty"><p>No overdue exteriors match your filter.</p></div></td></tr>`;return;}
+  if(!d.length){tb.innerHTML=`<tr><td colspan="6"><div class="empty"><p>No overdue exteriors match your filter.</p></div></td></tr>`;return;}
   tb.innerHTML=d.map(r=>{
     const days=diff(r.lastExt);
-    return `<tr><td>${r.label}</td><td><span style="font-size:12px;color:var(--muted)">${r.city}</span></td><td>${pill(r.propType)}</td><td style="font-family:'DM Mono',monospace;font-size:12px" class="${r.lastExt?'':'dim'}">${fmt(r.lastExt)}</td><td>${dayBadge(days,EXT_DAYS)}</td></tr>`;
+    return `<tr><td>${r.label}</td><td><span style="font-size:12px;color:var(--muted)">${r.city}</span></td><td><span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--muted)">${r.zip}</span></td><td>${pill(r.propType)}</td><td style="font-family:'DM Mono',monospace;font-size:12px" class="${r.lastExt?'':'dim'}">${fmt(r.lastExt)}</td><td>${dayBadge(days,EXT_DAYS)}</td></tr>`;
+  }).join('');
+}
+
+function renderCom(){
+  const fP=cfv('cf-com-prop');
+  let d=commercialRows.filter(r=>match(r.label,fP));
+  d=applySort(d,'com'); updateSortBtns('com');
+  const tb=document.getElementById('tb-com');
+  if(!d.length){tb.innerHTML=`<tr><td colspan="7"><div class="empty"><p>No commercial properties match your filter.</p></div></td></tr>`;return;}
+  tb.innerHTML=d.map(r=>{
+    const nextDisp=isFuture(r.nextDate)?`<span style="font-family:'DM Mono',monospace;font-size:12px">${fmt(r.nextDate)}</span>`:'<span class="dim">—</span>';
+    const time=(!r.nextTime||r.nextTime==='Unscheduled')?'<span class="dim">—</span>':r.nextTime;
+    return `<tr>
+      <td>${r.label}</td>
+      <td><span style="font-size:12px;color:var(--muted)">${r.city}</span></td>
+      <td><span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--muted)">${r.zip}</span></td>
+      <td style="font-family:'DM Mono',monospace;font-size:12px" class="${r.lastInt?'':'dim'}">${fmt(r.lastInt)}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:12px" class="${r.lastExt?'':'dim'}">${fmt(r.lastExt)}</td>
+      <td>${nextDisp}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:12px">${time}</td>
+    </tr>`;
   }).join('');
 }
 
@@ -732,15 +769,14 @@ function bindFilter(inputId,btnId,tab){
 }
 
 bindFilter('cf-int-prop','fbtn-int-prop','int');
-bindFilter('cf-int-region','fbtn-int-region','int');
 bindFilter('cf-int-type','fbtn-int-type','int');
 bindFilter('cf-int-time','fbtn-int-time','int');
 bindFilter('cf-ext-prop','fbtn-ext-prop','ext');
-bindFilter('cf-ext-region','fbtn-ext-region','ext');
 bindFilter('cf-ext-type','fbtn-ext-type','ext');
+document.getElementById('cf-com-prop')?.addEventListener('input',()=>rerender('com'));
 
 // init sort arrows
-updateSortBtns('int'); updateSortBtns('ext');
+updateSortBtns('int'); updateSortBtns('ext'); updateSortBtns('com');
 
 loadCSV();
 </script>
