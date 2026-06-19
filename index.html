@@ -507,9 +507,7 @@ function z2r(zip){ return ZIP_REGION[String(zip||'').trim().substring(0,5)]||'Ot
 function buildLabel(c,g){
   const addr1=g(c,23),addr2=g(c,24),city=g(c,12),propStr=g(c,0);
   const addr=addr1&&addr2?`${addr1}, ${addr2}`:(addr1||addr2);
-  if(addr){
-    return `${addr}${city?', '+city:''}`;
-  }
+  if(addr) return addr;
   if(propStr&&propStr.includes(' - ')) return propStr.split(' - ').slice(1).join(' - ').trim();
   return propStr||city||'—';
 }
@@ -517,6 +515,7 @@ function buildLabel(c,g){
 function ingest(text){
   const lines=text.trim().split(/\r?\n/);
   const g=(cells,i)=>(i>=0&&i<cells.length)?cells[i]:'';
+  const EXCLUDED_PROPERTIES=['8506 Hayloft Pl'];
   rows=lines.slice(1).map(line=>{
     if(!line.trim()) return null;
     const c=splitLine(line);
@@ -527,7 +526,7 @@ function ingest(text){
     const lastExt=isCom?parseD(g(c,19)):parseD(g(c,2));
     const lastInt=parseD(g(c,3));
     return {label:buildLabel(c,g),city:g(c,12),zip,region:z2r(zip),propType:pt,tenant:g(c,8),lastInt,lastExt,nextDate,nextTime};
-  }).filter(r=>r&&(r.city||r.propType));
+  }).filter(r=>r&&(r.city||r.propType)&&!EXCLUDED_PROPERTIES.some(p=>r.label.toLowerCase().includes(p.toLowerCase())));
   process();
 }
 
