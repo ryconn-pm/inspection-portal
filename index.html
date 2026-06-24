@@ -775,6 +775,8 @@ function renderInt(){
   tb.innerHTML=d.map(r=>{
     const days=diff(r.lastInt);
     const nextDisp=(isFuture(r.nextDate)&&!isPlaceholder(r.nextDate))?`<span style="font-family:'DM Mono',monospace;font-size:12px">${fmt(r.nextDate)}</span>`:'<span class="dim">—</span>';
+    const time=(!r.nextTime||r.nextTime==='Unscheduled')?'<span class="dim">—</span>':r.nextTime;
+    return `<tr><td>${r.label}</td><td><span style="font-size:12px;color:var(--muted)">${r.city}</span></td><td><span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--muted)">${r.zip}</span></td><td>${pill(r.propType)}</td><td style="font-family:'DM Mono',monospace;font-size:12px" class="${r.lastInt?'':'dim'}">${fmt(r.lastInt)}</td><td>${dayBadge(days,INT_DAYS)}</td><td>${nextDisp}</td><td style="font-family:'DM Mono',monospace;font-size:12px">${time}</td></tr>`;
   }).join('');
 }
 
