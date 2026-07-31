@@ -200,14 +200,18 @@
   .rs-info{width:250px;flex-shrink:0;}
   .rs-info .rs-addr{font-weight:600;}
   .rs-info .rs-sub{font-size:11px;color:#333;line-height:1.4;}
-  .rs-notes{flex:1;border-bottom:1px dotted #999;min-height:36px;}
+  .rs-notes{flex:1;align-self:stretch;padding-left:2px;}
+  .rs-notes .rs-nlbl{font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#999;margin-bottom:3px;}
+  .rs-notes .ln{display:block;border-bottom:1px dotted #999;height:19px;}
   .rs-empty{border:1px solid #999;padding:9px;font-size:12px;font-style:italic;color:#555;}
   @media print{
     @page{margin:0.5in;}
-    body{background:#fff;}
-    header,.status-bar,.tabs,.panel{display:none !important;}
+    html,body{height:auto !important;min-height:0 !important;margin:0 !important;padding:0 !important;background:#fff !important;}
+    body>*{display:none !important;}
     #route-sheet{display:block !important;}
     .rs-day{page-break-inside:avoid;}
+    .rs-day:last-child{margin-bottom:0 !important;}
+    .rs-empty{page-break-inside:avoid;}
   }
 </style>
 </head>
@@ -915,7 +919,7 @@ function buildRouteSheet(){
       const time=(!r.nextTime||r.nextTime==='Unscheduled')?'—':r.nextTime;
       const phone=(r.phone||'').replace(/^(phone|mobile):\s*/i,'').split(',')[0].trim();
       const sub=[r.city&&(r.zip?`${r.city} ${r.zip}`:r.city),r.tenant,phone].filter(Boolean).join(' · ');
-      return `<div class="rs-row"><div class="rs-chk"></div><div class="rs-time">${time}</div><div class="rs-info"><div class="rs-addr">${r.label}</div><div class="rs-sub">${sub}</div></div><div class="rs-notes"></div></div>`;
+      return `<div class="rs-row"><div class="rs-chk"></div><div class="rs-time">${time}</div><div class="rs-info"><div class="rs-addr">${r.label}</div><div class="rs-sub">${sub}</div></div><div class="rs-notes"><div class="rs-nlbl">Notes</div><span class="ln"></span><span class="ln"></span></div></div>`;
     }).join('');
     html+=`</div>`;
   }
@@ -1123,6 +1127,10 @@ document.getElementById('cf-com-prop')?.addEventListener('input',()=>rerender('c
 
 // init sort arrows
 updateSortBtns('int'); updateSortBtns('ext'); updateSortBtns('com');
+
+// Rebuild the route sheet on any print trigger — including the browser's own Ctrl+P /
+// File → Print — so printing can never produce a blank page.
+window.addEventListener('beforeprint',buildRouteSheet);
 
 loadCSV();
 </script>
