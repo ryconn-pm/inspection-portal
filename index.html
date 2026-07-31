@@ -590,7 +590,7 @@ let intSeg='all';  // overdue-interiors segmented view: all | scheduled | unsche
 // Classify an overdue interior row by its scheduling state.
 function schedStatusOf(r){
   if(isPlaceholder(r.nextDate)) return 'suppressed';                       // 1/1/9999 = intentionally held out of scheduling
-  if(isFuture(r.nextDate)&&VALID_SLOTS.includes(r.nextTime)) return 'scheduled';  // future date in a real slot
+  if(isFutureOrToday(r.nextDate)&&VALID_SLOTS.includes(r.nextTime)) return 'scheduled';  // future date in a real slot
   return 'unscheduled';                                                    // still overdue, nothing booked
 }
 
@@ -715,6 +715,8 @@ function parseD(s){
 function diff(d){ return d?Math.floor((today-d)/86400000):null; }
 function fmt(d){ return d?d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'—'; }
 function isFuture(d){ return d&&d.getTime()>today.getTime(); }
+// A booked inspection counts if it's today or later (a same-day visit is still scheduled).
+function isFutureOrToday(d){ return d&&d.getTime()>=today.getTime(); }
 // 1/1/9999 (and similar far-future placeholders) means "intentionally unscheduled" —
 // treat it as a future date for overdue purposes, but never display the literal date.
 function isPlaceholder(d){ return d&&d.getFullYear()>=9999; }
@@ -905,7 +907,7 @@ function buildReport(tab){
   const shortType=t=>t==='Single-Family'?'SF':t==='Multi-Family'?'MF':t==='Commercial'?'COM':(t||'');
   const capw=s=>s?s.charAt(0).toUpperCase()+s.slice(1):s;
   const selText=id=>{const el=document.getElementById(id);return el&&el.selectedIndex>0?el.options[el.selectedIndex].textContent:'';};
-  const nextCell=r=>(isFuture(r.nextDate)&&!isPlaceholder(r.nextDate))?fmt(r.nextDate):'—';
+  const nextCell=r=>(isFutureOrToday(r.nextDate)&&!isPlaceholder(r.nextDate))?fmt(r.nextDate):'—';
   let data,cols,title,filters=[];
   if(tab==='int'){
     data=getIntRows(); title='Overdue Interiors';
@@ -1088,7 +1090,7 @@ function renderInt(){
   if(!d.length){tb.innerHTML=`<tr><td colspan="9"><div class="empty"><p>No overdue interiors match your filter.</p></div></td></tr>`;return;}
   tb.innerHTML=d.map(r=>{
     const days=diff(r.lastInt);
-    const nextDisp=(isFuture(r.nextDate)&&!isPlaceholder(r.nextDate))?`<span style="font-family:'DM Mono',monospace;font-size:12px">${fmt(r.nextDate)}</span>`:'<span class="dim">—</span>';
+    const nextDisp=(isFutureOrToday(r.nextDate)&&!isPlaceholder(r.nextDate))?`<span style="font-family:'DM Mono',monospace;font-size:12px">${fmt(r.nextDate)}</span>`:'<span class="dim">—</span>';
     const time=(r.schedStatus==='scheduled'&&r.nextTime&&r.nextTime!=='Unscheduled')?r.nextTime:'<span class="dim">—</span>';
     const st=r.schedStatus==='scheduled'?'<span class="spill sched">Scheduled</span>'
             :r.schedStatus==='suppressed'?'<span class="spill supp">Suppressed</span>'
@@ -1162,7 +1164,7 @@ function renderCom(){
   const tb=document.getElementById('tb-com');
   if(!d.length){tb.innerHTML=`<tr><td colspan="7"><div class="empty"><p>No commercial properties match your filter.</p></div></td></tr>`;return;}
   tb.innerHTML=d.map(r=>{
-    const nextDisp=(isFuture(r.nextDate)&&!isPlaceholder(r.nextDate))?`<span style="font-family:'DM Mono',monospace;font-size:12px">${fmt(r.nextDate)}</span>`:'<span class="dim">—</span>';
+    const nextDisp=(isFutureOrToday(r.nextDate)&&!isPlaceholder(r.nextDate))?`<span style="font-family:'DM Mono',monospace;font-size:12px">${fmt(r.nextDate)}</span>`:'<span class="dim">—</span>';
     const time=(!r.nextTime||r.nextTime==='Unscheduled')?'<span class="dim">—</span>':r.nextTime;
     return `<tr>
       <td data-label="Property">${r.label}</td>
