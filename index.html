@@ -203,6 +203,12 @@
   .rs-notes .rs-nlbl{font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#999;margin-bottom:3px;}
   .rs-notes .ln{display:block;border-bottom:1px dotted #999;height:19px;}
   .rs-empty{border:1px solid #999;padding:9px;font-size:12px;font-style:italic;color:#555;}
+  /* tabular print report (overdue / commercial tabs) */
+  .rpt-table{width:100%;border-collapse:collapse;font-family:'DM Sans',sans-serif;color:#000;}
+  .rpt-table th{text-align:left;border-bottom:1.5px solid #000;padding:5px 6px;font-size:9.5px;text-transform:uppercase;letter-spacing:.03em;white-space:nowrap;}
+  .rpt-table td{padding:4px 6px;border-bottom:1px solid #ccc;font-size:11px;vertical-align:top;}
+  .rpt-table tbody tr{page-break-inside:avoid;}
+  .rpt-table thead{display:table-header-group;}
   @media print{
     @page{margin:0.5in;}
     html,body{height:auto !important;min-height:0 !important;margin:0 !important;padding:0 !important;background:#fff !important;}
@@ -345,6 +351,7 @@
       <option value="none">No record</option>
     </select>
     <button class="fbtn-clr" onclick="clearIntAdv()">Clear</button>
+    <button class="fbtn-print" onclick="doPrint()" style="margin-left:auto;">🖨 Print</button>
   </div>
 
   <div class="tbl-wrap">
@@ -457,6 +464,7 @@
       <option value="none">No record</option>
     </select>
     <button class="fbtn-clr" onclick="clearExtAdv()">Clear</button>
+    <button class="fbtn-print" onclick="doPrint()" style="margin-left:auto;">🖨 Print</button>
   </div>
 
   <div class="tbl-wrap">
@@ -535,6 +543,7 @@
       style="font-family:'DM Sans',sans-serif;font-size:11px;padding:5px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);background:none;color:var(--muted);cursor:pointer;">
       Clear
     </button>
+    <button class="fbtn-print" onclick="doPrint()" style="margin-left:auto;">🖨 Print</button>
   </div>
 
   <div class="sec-lbl">All commercial properties — interior &amp; exterior inspection history and next scheduled date</div>
@@ -888,7 +897,56 @@ function currentUpcomingFiltered(){
 }
 
 // Build a clean, ink-friendly weekly route sheet for the currently viewed week + filters, then print.
-function printRouteSheet(){ buildRouteSheet(); window.print(); }
+function printRouteSheet(){ doPrint(); }
+
+// Build a clean tabular print report for the overdue / commercial tabs, matching what's on screen.
+function buildReport(tab){
+  const dateStr=today.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  const shortType=t=>t==='Single-Family'?'SF':t==='Multi-Family'?'MF':t==='Commercial'?'COM':(t||'');
+  const capw=s=>s?s.charAt(0).toUpperCase()+s.slice(1):s;
+  const selText=id=>{const el=document.getElementById(id);return el&&el.selectedIndex>0?el.options[el.selectedIndex].textContent:'';};
+  const nextCell=r=>(isFuture(r.nextDate)&&!isPlaceholder(r.nextDate))?fmt(r.nextDate):'—';
+  let data,cols,title,filters=[];
+  if(tab==='int'){
+    data=getIntRows(); title='Overdue Interiors';
+    filters=[intSeg==='all'?'All':capw(intSeg),selText('cf-int-region'),cfv('cf-int-type'),selText('cf-int-age'),cfv('cf-int-prop')&&'“'+cfv('cf-int-prop')+'”'];
+    cols=[['Property',r=>r.label],['City',r=>r.city],['Zip',r=>r.zip],['Type',r=>shortType(r.propType)],
+      ['Last Interior',r=>fmt(r.lastInt)],['Days',r=>{const d=diff(r.lastInt);return d==null?'—':d+'d';}],
+      ['Status',r=>capw(r.schedStatus)],['Next',nextCell],
+      ['Time',r=>(r.schedStatus==='scheduled'&&r.nextTime&&r.nextTime!=='Unscheduled')?r.nextTime:'—']];
+  }else if(tab==='ext'){
+    data=getExtRows(); title='Overdue Exteriors';
+    filters=[selText('cf-ext-region'),cfv('cf-ext-type'),selText('cf-ext-age'),cfv('cf-ext-prop')&&'“'+cfv('cf-ext-prop')+'”'];
+    cols=[['Property',r=>r.label],['City',r=>r.city],['Zip',r=>r.zip],['Type',r=>shortType(r.propType)],
+      ['Last Exterior',r=>fmt(r.lastExt)],['Days',r=>{const d=diff(r.lastExt);return d==null?'—':d+'d';}]];
+  }else{
+    data=getComRows(); title='Commercial Properties';
+    filters=[selText('cf-com-region'),cfv('cf-com-prop')&&'“'+cfv('cf-com-prop')+'”'];
+    cols=[['Property',r=>r.label],['City',r=>r.city],['Zip',r=>r.zip],
+      ['Last Interior',r=>fmt(r.lastInt)],['Last Exterior',r=>fmt(r.lastExt)],
+      ['Next',nextCell],['Time',r=>(!r.nextTime||r.nextTime==='Unscheduled')?'—':r.nextTime]];
+  }
+  const fstr=filters.filter(Boolean).join(' · ');
+  const note=`${data.length} ${data.length===1?'row':'rows'}`;
+  let html=`<div class="rs-head"><div><h1>${title}</h1><div style="font-size:12px">Ryconn Property Management${fstr?' · '+fstr:''}</div></div><div class="rs-meta">${note}<br>Printed ${dateStr}</div></div>`;
+  if(!data.length){
+    html+=`<div class="rs-empty">No rows match the current filters.</div>`;
+  }else{
+    html+=`<table class="rpt-table"><thead><tr>${cols.map(c=>`<th>${c[0]}</th>`).join('')}</tr></thead><tbody>${
+      data.map(r=>`<tr>${cols.map(c=>`<td>${c[1](r)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+  }
+  document.getElementById('route-sheet').innerHTML=html;
+}
+
+// Build the correct printout for whichever tab is active, then print.
+function buildPrint(){
+  const active=(document.querySelector('.panel.active')||{}).id||'panel-today';
+  if(active==='panel-int') buildReport('int');
+  else if(active==='panel-ext') buildReport('ext');
+  else if(active==='panel-com') buildReport('com');
+  else buildRouteSheet();
+}
+function doPrint(){ buildPrint(); window.print(); }
 function buildRouteSheet(){
   const filtered=currentUpcomingFiltered();
   const weekStart=new Date(today.getTime()+weekOffset*7*86400000);
@@ -1012,9 +1070,9 @@ function renderToday(){
   }
 }
 
-function renderInt(){
+function getIntRows(){
   const fP=cfv('cf-int-prop'),fTp=cfv('cf-int-type'),fTm=cfv('cf-int-time'),fRg=cfv('cf-int-region'),fAge=cfv('cf-int-age');
-  let d=overdueInt.filter(r=>
+  const d=overdueInt.filter(r=>
     (intSeg==='all'?r.schedStatus!=='suppressed':r.schedStatus===intSeg)&&
     match(r.label,fP)&&
     (!fTp||r.propType===fTp)&&
@@ -1022,7 +1080,10 @@ function renderInt(){
     (!fRg||r.region===fRg)&&
     ageBucketMatch(diff(r.lastInt),fAge)
   );
-  d=applySort(d,'int'); updateSortBtns('int');
+  return applySort(d,'int');
+}
+function renderInt(){
+  const d=getIntRows(); updateSortBtns('int');
   const tb=document.getElementById('tb-int');
   if(!d.length){tb.innerHTML=`<tr><td colspan="9"><div class="empty"><p>No overdue interiors match your filter.</p></div></td></tr>`;return;}
   tb.innerHTML=d.map(r=>{
@@ -1064,15 +1125,18 @@ function clearComAdv(){
   renderCom();
 }
 
-function renderExt(){
+function getExtRows(){
   const fP=cfv('cf-ext-prop'),fTp=cfv('cf-ext-type'),fRg=cfv('cf-ext-region'),fAge=cfv('cf-ext-age');
-  let d=overdueExt.filter(r=>
+  const d=overdueExt.filter(r=>
     match(r.label,fP)&&
     (!fTp||r.propType===fTp)&&
     (!fRg||r.region===fRg)&&
     ageBucketMatch(diff(r.lastExt),fAge)
   );
-  d=applySort(d,'ext'); updateSortBtns('ext');
+  return applySort(d,'ext');
+}
+function renderExt(){
+  const d=getExtRows(); updateSortBtns('ext');
   const tb=document.getElementById('tb-ext');
   if(!d.length){tb.innerHTML=`<tr><td colspan="6"><div class="empty"><p>No overdue exteriors match your filter.</p></div></td></tr>`;return;}
   tb.innerHTML=d.map(r=>{
@@ -1088,10 +1152,13 @@ function renderExt(){
   }).join('');
 }
 
-function renderCom(){
+function getComRows(){
   const fP=cfv('cf-com-prop'),fRg=cfv('cf-com-region');
-  let d=commercialRows.filter(r=>match(r.label,fP)&&(!fRg||r.region===fRg));
-  d=applySort(d,'com'); updateSortBtns('com');
+  const d=commercialRows.filter(r=>match(r.label,fP)&&(!fRg||r.region===fRg));
+  return applySort(d,'com');
+}
+function renderCom(){
+  const d=getComRows(); updateSortBtns('com');
   const tb=document.getElementById('tb-com');
   if(!d.length){tb.innerHTML=`<tr><td colspan="7"><div class="empty"><p>No commercial properties match your filter.</p></div></td></tr>`;return;}
   tb.innerHTML=d.map(r=>{
@@ -1129,7 +1196,7 @@ updateSortBtns('int'); updateSortBtns('ext'); updateSortBtns('com');
 
 // Rebuild the route sheet on any print trigger — including the browser's own Ctrl+P /
 // File → Print — so printing can never produce a blank page.
-window.addEventListener('beforeprint',buildRouteSheet);
+window.addEventListener('beforeprint',buildPrint);
 
 loadCSV();
 </script>
