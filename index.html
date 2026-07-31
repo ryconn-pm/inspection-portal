@@ -135,9 +135,79 @@
   table.upcoming-table th:nth-child(6),table.upcoming-table td:nth-child(6){width:17%;}
   table.upcoming-table td{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 
-  @media(max-width:600px){
+  /* ── shared advanced-filter bar ── */
+  .fbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px;}
+  .fbar .flbl{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-right:2px;}
+  .fctl{font-family:'DM Sans',sans-serif;font-size:12px;padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);color:var(--text);outline:none;}
+  select.fctl{cursor:pointer;} input.fctl{min-width:170px;}
+  .fctl:focus{border-color:var(--navy-mid);}
+  .fbtn-clr{font-family:'DM Sans',sans-serif;font-size:11px;padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);background:none;color:var(--muted);cursor:pointer;}
+  .fbtn-clr:hover{border-color:var(--navy-mid);color:var(--navy-mid);}
+  .fbtn-print{font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;padding:6px 12px;border:1px solid var(--navy-mid);border-radius:var(--radius-sm);background:var(--navy-mid);color:#fff;cursor:pointer;display:inline-flex;align-items:center;gap:6px;}
+  .fbtn-print:hover{background:var(--navy);}
+
+  /* segmented status toggle */
+  .seg{display:inline-flex;border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;background:var(--surface);flex-wrap:wrap;}
+  .seg button{font-family:'DM Sans',sans-serif;font-size:12px;padding:6px 12px;border:none;background:none;color:var(--muted);cursor:pointer;border-right:1px solid var(--border);display:flex;align-items:center;gap:6px;transition:background .12s,color .12s;}
+  .seg button:last-child{border-right:none;}
+  .seg button:hover{background:var(--navy-light);color:var(--navy);}
+  .seg button.on{background:var(--navy-mid);color:#fff;}
+  .seg button .cnt{font-family:'DM Mono',monospace;font-size:11px;font-weight:700;background:var(--surface2);color:var(--muted);border-radius:20px;padding:0 6px;min-width:18px;text-align:center;}
+  .seg button.on .cnt{background:rgba(255,255,255,.22);color:#fff;}
+
+  /* schedule-status pill (overdue interiors) */
+  .spill{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;font-family:'DM Mono',monospace;padding:2px 9px;border-radius:20px;white-space:nowrap;}
+  .spill::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor;}
+  .spill.sched{background:var(--green-light);color:var(--green);}
+  .spill.unsched{background:var(--orange-light);color:var(--orange);}
+  .spill.supp{background:var(--surface2);color:var(--muted);}
+
+  /* ── mobile: data tables collapse into stacked cards ── */
+  @media(max-width:680px){
     header,.status-bar,.panel{padding-left:14px;padding-right:14px;}
     .tabs{padding:0 14px;}
+    .tab{padding:12px 14px;}
+    input.fctl,select.fctl{flex:1 1 140px;min-width:0;width:auto;}
+    .stats{grid-template-columns:repeat(2,1fr);}
+    .panel table thead{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);border:0;}
+    .panel table,.panel tbody,.panel tr,.panel td{display:block;width:100%;}
+    .panel .tbl-wrap{overflow:visible;background:none;border:none;border-radius:0;}
+    .panel tbody tr{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px;}
+    .panel tbody tr:hover{background:var(--surface);}
+    .panel td{border:none;padding:7px 14px;display:flex;justify-content:space-between;align-items:center;gap:12px;overflow:visible;white-space:normal;text-overflow:clip;min-height:0;}
+    .panel td+td{border-top:1px dashed var(--border);}
+    .panel td::before{content:attr(data-label);font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);flex-shrink:0;}
+    .panel td:empty{display:none;}
+    .panel td[data-label]:not([data-label=""]){text-align:right;}
+    table.upcoming-table th,table.upcoming-table td{width:auto;}
+    .day-section .tbl-wrap{border:none;}
+    .day-section tbody tr{border-radius:0 0 var(--radius) var(--radius);margin-bottom:0;border-top:none;}
+    .seg{width:100%;}
+    .seg button{flex:1 1 auto;justify-content:center;}
+  }
+
+  /* ── printable route sheet (screen: hidden) ── */
+  #route-sheet{display:none;}
+  #route-sheet{font-family:'DM Sans',sans-serif;color:#000;}
+  .rs-head{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #000;padding-bottom:8px;margin-bottom:14px;}
+  .rs-head h1{font-size:19px;font-weight:600;}
+  .rs-head .rs-meta{font-size:12px;font-family:'DM Mono',monospace;text-align:right;line-height:1.5;}
+  .rs-day{margin-bottom:16px;}
+  .rs-day-hd{font-size:13px;font-weight:700;background:#eee;border:1px solid #000;padding:5px 9px;}
+  .rs-row{display:flex;border:1px solid #999;border-top:none;padding:8px 9px;font-size:12px;gap:10px;align-items:flex-start;}
+  .rs-chk{width:15px;height:15px;border:1.5px solid #000;border-radius:2px;flex-shrink:0;margin-top:1px;}
+  .rs-time{width:120px;flex-shrink:0;font-family:'DM Mono',monospace;font-weight:600;}
+  .rs-info{width:250px;flex-shrink:0;}
+  .rs-info .rs-addr{font-weight:600;}
+  .rs-info .rs-sub{font-size:11px;color:#333;line-height:1.4;}
+  .rs-notes{flex:1;border-bottom:1px dotted #999;min-height:36px;}
+  .rs-empty{border:1px solid #999;padding:9px;font-size:12px;font-style:italic;color:#555;}
+  @media print{
+    @page{margin:0.5in;}
+    body{background:#fff;}
+    header,.status-bar,.tabs,.panel{display:none !important;}
+    #route-sheet{display:block !important;}
+    .rs-day{page-break-inside:avoid;}
   }
 </style>
 </head>
@@ -213,6 +283,10 @@
       <option value="Unscheduled">Unscheduled</option>
     </select>
 
+    <select id="cf-today-area" class="fctl" onchange="rerender('today');">
+      <option value="">All Regions</option>
+    </select>
+
     <button onclick="clearUpcomingFilters()"
       style="font-family:'DM Sans',sans-serif;font-size:11px;padding:5px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);background:none;color:var(--muted);cursor:pointer;">
       Clear
@@ -233,6 +307,7 @@
       style="font-family:'DM Sans',sans-serif;font-size:11px;padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);background:none;color:var(--muted);cursor:pointer;">
       Jump to Today
     </button>
+    <button class="fbtn-print" onclick="printRouteSheet()" style="margin-left:auto;">🖨 Route Sheet</button>
   </div>
 
   <div id="upcoming-week"></div>
@@ -242,12 +317,33 @@
 <div class="panel" id="panel-int">
   <div class="stats">
     <div class="sc red"><div class="lbl">Total Overdue</div><div class="val" id="s-oint">—</div></div>
-    <div class="sc blue"><div class="lbl">Single-Family</div><div class="val" id="s-oint-sf">—</div></div>
-    <div class="sc pu"><div class="lbl">Multi-Family</div><div class="val" id="s-oint-mf">—</div></div>
-    <div class="sc or"><div class="lbl">Threshold</div><div class="val">365d</div></div>
+    <div class="sc blue"><div class="lbl">Scheduled</div><div class="val" id="s-oint-sched">—</div></div>
+    <div class="sc or"><div class="lbl">Unscheduled</div><div class="val" id="s-oint-unsched">—</div></div>
+    <div class="sc navy"><div class="lbl">Threshold</div><div class="val">365d</div></div>
   </div>
 
   <div class="sec-lbl">Last interior inspection was more than 365 days ago — residential only</div>
+
+  <div class="fbar">
+    <div class="seg" id="int-seg">
+      <button data-seg="all" class="on" onclick="setIntSeg('all')">All <span class="cnt" id="segc-all">0</span></button>
+      <button data-seg="scheduled" onclick="setIntSeg('scheduled')">Scheduled <span class="cnt" id="segc-scheduled">0</span></button>
+      <button data-seg="unscheduled" onclick="setIntSeg('unscheduled')">Unscheduled <span class="cnt" id="segc-unscheduled">0</span></button>
+      <button data-seg="suppressed" onclick="setIntSeg('suppressed')">Suppressed <span class="cnt" id="segc-suppressed">0</span></button>
+    </div>
+    <select id="cf-int-region" class="fctl" onchange="rerender('int');">
+      <option value="">All Regions</option>
+    </select>
+    <select id="cf-int-age" class="fctl" onchange="rerender('int');">
+      <option value="">Any age</option>
+      <option value="1-2">1–2 yrs overdue</option>
+      <option value="2-3">2–3 yrs overdue</option>
+      <option value="3p">3+ yrs overdue</option>
+      <option value="none">No record</option>
+    </select>
+    <button class="fbtn-clr" onclick="clearIntAdv()">Clear</button>
+  </div>
+
   <div class="tbl-wrap">
     <table>
       <thead><tr class="hdr">
@@ -301,6 +397,11 @@
         </th>
         <th>
           <div class="th-inner">
+            <span class="th-label">Status</span>
+          </div>
+        </th>
+        <th>
+          <div class="th-inner">
             <span class="th-label">Next Scheduled</span>
             <button class="sort-btn" id="sort-int-nextDate" onclick="sortTable('int','nextDate')"></button>
           </div>
@@ -339,6 +440,22 @@
   </div>
 
   <div class="sec-lbl">Last exterior inspection was more than 183 days ago — residential only</div>
+
+  <div class="fbar">
+    <select id="cf-ext-region" class="fctl" onchange="rerender('ext');">
+      <option value="">All Regions</option>
+    </select>
+    <select id="cf-ext-age" class="fctl" onchange="rerender('ext');">
+      <option value="">Any age</option>
+      <option value="u1">Under 1 yr</option>
+      <option value="1-2">1–2 yrs</option>
+      <option value="2-3">2–3 yrs</option>
+      <option value="3p">3+ yrs</option>
+      <option value="none">No record</option>
+    </select>
+    <button class="fbtn-clr" onclick="clearExtAdv()">Clear</button>
+  </div>
+
   <div class="tbl-wrap">
     <table>
       <thead><tr class="hdr">
@@ -408,7 +525,10 @@
     <span style="font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-right:2px;">Filter:</span>
     <input type="text" id="cf-com-prop" placeholder="Search property…"
       style="font-family:'DM Sans',sans-serif;font-size:12px;padding:5px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);color:var(--text);outline:none;width:180px;">
-    <button onclick="document.getElementById('cf-com-prop').value='';rerender('com');"
+    <select id="cf-com-region" class="fctl" onchange="rerender('com');">
+      <option value="">All Regions</option>
+    </select>
+    <button onclick="clearComAdv()"
       style="font-family:'DM Sans',sans-serif;font-size:11px;padding:5px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);background:none;color:var(--muted);cursor:pointer;">
       Clear
     </button>
@@ -449,10 +569,27 @@
 <script>
 const INT_DAYS=365,EXT_DAYS=183;
 const CSV_URL='https://raw.githubusercontent.com/ryconn-pm/inspection-portal/main/data/report.csv';
+const VALID_SLOTS=['9:00 AM to 11:00 AM','11:00 AM to 1:00 PM','1:00 PM to 3:00 PM','3:00 PM to 4:00 PM'];
+const SLOT_ORDER=VALID_SLOTS;
+const DAY_FULL=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const MON_ABBR=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+let intSeg='all';  // overdue-interiors segmented view: all | scheduled | unscheduled | suppressed
+
+// Classify an overdue interior row by its scheduling state.
+function schedStatusOf(r){
+  if(isPlaceholder(r.nextDate)) return 'suppressed';                       // 1/1/9999 = intentionally held out of scheduling
+  if(isFuture(r.nextDate)&&VALID_SLOTS.includes(r.nextTime)) return 'scheduled';  // future date in a real slot
+  return 'unscheduled';                                                    // still overdue, nothing booked
+}
 
 const ZIP_REGION={'92543':'Hemet','92544':'Hemet','92545':'Hemet','92548':'Hemet','92586':'Hemet','92501':'Riverside City','92503':'Riverside City','92504':'Riverside City','92505':'Riverside City','92506':'Riverside City','92507':'Riverside City','92508':'Riverside City','92509':'Riverside City','92582':'San Jacinto / Menifee','92583':'San Jacinto / Menifee','92584':'San Jacinto / Menifee','92585':'San Jacinto / Menifee','92530':'San Jacinto / Menifee','92532':'San Jacinto / Menifee','92223':'San Jacinto / Menifee','92879':'Corona / Norco','92880':'Corona / Norco','92881':'Corona / Norco','92882':'Corona / Norco','92883':'Corona / Norco','92878':'Corona / Norco','92860':'Corona / Norco','92562':'Murrieta / Temecula','92563':'Murrieta / Temecula','92591':'Murrieta / Temecula','92592':'Murrieta / Temecula','92596':'Murrieta / Temecula','92320':'Colton / Rialto / SB','92324':'Colton / Rialto / SB','92334':'Colton / Rialto / SB','92335':'Colton / Rialto / SB','92336':'Colton / Rialto / SB','92337':'Colton / Rialto / SB','92354':'Colton / Rialto / SB','92374':'Colton / Rialto / SB','92376':'Colton / Rialto / SB','92404':'Colton / Rialto / SB','92405':'Colton / Rialto / SB','92410':'Colton / Rialto / SB','92551':'Moreno Valley','92553':'Moreno Valley','92555':'Moreno Valley','92557':'Moreno Valley','92570':'Moreno Valley','91709':'Chino / Pomona','91710':'Chino / Pomona','91711':'Chino / Pomona','91730':'Chino / Pomona','91739':'Chino / Pomona','91752':'Chino / Pomona','91761':'Chino / Pomona','91766':'Chino / Pomona','91767':'Chino / Pomona','92587':'Sun City / Wildomar','92595':'Sun City / Wildomar','92240':'Low Desert','92234':'Low Desert','92440':'Low Desert','92345':'High Desert','92392':'High Desert','92647':'West / OC','92782':'West / OC','92701':'West / OC','92122':'West / OC','92603':'West / OC','92807':'West / OC','92808':'West / OC','92887':'West / OC','91910':'West / OC'};
 
 let rows=[],upcomingRows=[],overdueInt=[],overdueExt=[],commercialRows=[];
+// Derive the GitHub commits API endpoint for the data file straight from CSV_URL,
+// so the "data updated" timestamp keeps working even if the repo/branch/path changes.
+const _csvm=CSV_URL.match(/raw\.githubusercontent\.com\/([^/]+)\/([^/]+)\/([^/]+)\/(.+)$/);
+const COMMITS_API=_csvm?`https://api.github.com/repos/${_csvm[1]}/${_csvm[2]}/commits?path=${encodeURIComponent(_csvm[4])}&sha=${_csvm[3]}&per_page=1`:null;
+let lastUpdatedAt=null;
 let weekOffset=0;
 let sortState={int:{col:'days',dir:'desc'},ext:{col:'days',dir:'desc'},com:{col:'label',dir:'asc'}};
 const today=new Date(); today.setHours(0,0,0,0);
@@ -494,6 +631,34 @@ function markActive(inputId,btnId){
   if(btn) btn.classList.toggle('has-value', el.value!=='');
 }
 
+// Look up when the data file was actually last committed (i.e. last pushed by the automation).
+// Returns a Date, or null if GitHub is unreachable / rate-limited (60 req/hr per IP unauthenticated).
+async function fetchDataUpdatedTime(){
+  if(!COMMITS_API) return null;
+  try{
+    const r=await fetch(COMMITS_API,{headers:{'Accept':'application/vnd.github+json'}});
+    if(!r.ok) return null;
+    const j=await r.json();
+    const iso=j&&j[0]&&j[0].commit&&j[0].commit.committer&&j[0].commit.committer.date;
+    return iso?new Date(iso):null;
+  }catch(e){ return null; }
+}
+function stampAbs(d){ return d.toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}); }
+function stampRel(d){
+  const s=Math.floor((Date.now()-d.getTime())/1000);
+  if(s<60) return 'just now';
+  const m=Math.floor(s/60); if(m<60) return m+'m ago';
+  const h=Math.floor(m/60); if(h<24) return h+'h ago';
+  const dd=Math.floor(h/24); return dd+(dd===1?' day ago':' days ago');
+}
+// Keep the "updated" line's relative portion fresh while the page sits open.
+function refreshStamp(){
+  const bar=document.getElementById('status-bar'),msg=document.getElementById('status-msg');
+  if(!lastUpdatedAt||!bar.classList.contains('ok')) return;
+  msg.textContent='Data updated '+stampAbs(lastUpdatedAt)+' · '+stampRel(lastUpdatedAt);
+}
+setInterval(refreshStamp,60000);
+
 // fetch
 async function loadCSV(){
   const bar=document.getElementById('status-bar'),sp=document.getElementById('spinner'),msg=document.getElementById('status-msg');
@@ -503,7 +668,13 @@ async function loadCSV(){
     if(!res.ok) throw new Error('HTTP '+res.status);
     ingest(await res.text());
     bar.className='status-bar ok'; sp.style.display='none';
-    msg.textContent='Report loaded · Last updated '+new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+    lastUpdatedAt=await fetchDataUpdatedTime();
+    if(lastUpdatedAt){
+      msg.textContent='Data updated '+stampAbs(lastUpdatedAt)+' · '+stampRel(lastUpdatedAt);
+    }else{
+      // Couldn't confirm the file's commit time — show fetch time, but don't claim it's the update time.
+      msg.textContent='Report loaded '+new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+    }
   }catch(e){
     bar.className='status-bar err'; sp.style.display='none';
     msg.textContent='Could not load report — '+e.message+'. Try refreshing.';
@@ -558,7 +729,7 @@ function ingest(text){
     const nextTime=isCom?g(c,21):isMF?g(c,7):g(c,6);
     const lastExt=isCom?parseD(g(c,19)):parseD(g(c,2));
     const lastInt=parseD(g(c,3));
-    return {label:buildLabel(c,g),city:g(c,12),zip,region:z2r(zip),propType:pt,tenant:g(c,8),lastInt,lastExt,nextDate,nextTime};
+    return {label:buildLabel(c,g),city:g(c,12),zip,region:z2r(zip),propType:pt,tenant:g(c,8),phone:g(c,10),lastInt,lastExt,nextDate,nextTime};
   }).filter(r=>r&&(r.city||r.propType)&&!EXCLUDED_PROPERTIES.some(p=>r.label.toLowerCase().includes(p.toLowerCase())));
   process();
 }
@@ -568,17 +739,14 @@ function process(){
   const horizonEnd=new Date(today.getTime()+84*24*60*60*1000); // ~12 weeks ahead
   upcomingRows=rows.filter(r=>r.nextDate&&r.nextDate>=today&&r.nextDate.getFullYear()<9000&&r.nextDate<horizonEnd);
   const next7Rows=upcomingRows.filter(r=>r.nextDate<next7End);
-  const VALID_SLOTS=['9:00 AM to 11:00 AM','11:00 AM to 1:00 PM','1:00 PM to 3:00 PM','3:00 PM to 4:00 PM'];
+  // All overdue residential interiors (365+), scheduled or not — each tagged with its schedule status.
+  // The scheduled/unscheduled/suppressed split is done at render time so both live on one page.
   overdueInt=rows.filter(r=>{
     if(r.propType==='Commercial') return false;
     if(!r.tenant||r.tenant.trim()==='') return false;
-    const d=diff(r.lastInt); if(!(d===null||d>INT_DAYS)) return false;
-    // Exclude if next date is the Jan 1 9999 placeholder (intentionally unscheduled, treated as future)
-    if(isPlaceholder(r.nextDate)) return false;
-    // Exclude if already scheduled in the future with a real time slot
-    if(isFuture(r.nextDate)&&VALID_SLOTS.includes(r.nextTime)) return false;
-    return true;
-  });
+    const d=diff(r.lastInt);
+    return d===null||d>INT_DAYS;
+  }).map(r=>({...r,schedStatus:schedStatusOf(r)}));
   overdueExt=rows.filter(r=>{
     if(r.propType==='Commercial') return false;
     if(!r.tenant||r.tenant.trim()==='') return false;
@@ -589,9 +757,17 @@ function process(){
   document.getElementById('s-sf').textContent=next7Rows.filter(r=>r.propType==='Single-Family').length;
   document.getElementById('s-mf').textContent=next7Rows.filter(r=>r.propType==='Multi-Family').length;
   document.getElementById('s-com').textContent=next7Rows.filter(r=>r.propType==='Commercial').length;
-  document.getElementById('s-oint').textContent=overdueInt.length;
-  document.getElementById('s-oint-sf').textContent=overdueInt.filter(r=>r.propType==='Single-Family').length;
-  document.getElementById('s-oint-mf').textContent=overdueInt.filter(r=>r.propType==='Multi-Family').length;
+  const oiSched=overdueInt.filter(r=>r.schedStatus==='scheduled').length;
+  const oiUnsched=overdueInt.filter(r=>r.schedStatus==='unscheduled').length;
+  const oiSupp=overdueInt.filter(r=>r.schedStatus==='suppressed').length;
+  const oiActive=oiSched+oiUnsched;
+  document.getElementById('s-oint').textContent=oiActive;
+  document.getElementById('s-oint-sched').textContent=oiSched;
+  document.getElementById('s-oint-unsched').textContent=oiUnsched;
+  document.getElementById('segc-all').textContent=oiActive;
+  document.getElementById('segc-scheduled').textContent=oiSched;
+  document.getElementById('segc-unscheduled').textContent=oiUnsched;
+  document.getElementById('segc-suppressed').textContent=oiSupp;
   document.getElementById('s-oext').textContent=overdueExt.length;
   document.getElementById('s-oext-sf').textContent=overdueExt.filter(r=>r.propType==='Single-Family').length;
   document.getElementById('s-oext-mf').textContent=overdueExt.filter(r=>r.propType==='Multi-Family').length;
@@ -599,10 +775,33 @@ function process(){
   document.getElementById('s-com-oint').textContent=commercialRows.filter(r=>{if(isPlaceholder(r.nextDate)) return false; const d=diff(r.lastInt);return d===null||d>INT_DAYS;}).length;
   document.getElementById('s-com-oext').textContent=commercialRows.filter(r=>{if(isPlaceholder(r.nextDate)) return false; const d=diff(r.lastExt);return d===null||d>EXT_DAYS;}).length;
   document.getElementById('b-today').textContent=next7Rows.length;
-  document.getElementById('b-int').textContent=overdueInt.length;
+  document.getElementById('b-int').textContent=oiUnsched;   // badge = still-overdue, nothing booked (actionable)
   document.getElementById('b-ext').textContent=overdueExt.length;
   document.getElementById('b-com').textContent=commercialRows.length;
+  populateRegionSelects();
   renderToday(); renderInt(); renderExt(); renderCom();
+}
+
+// Fill every region dropdown with the distinct regions actually present in the data.
+function populateRegionSelects(){
+  const regions=[...new Set(rows.map(r=>r.region).filter(Boolean))].sort();
+  const opts='<option value="">All Regions</option>'+regions.map(r=>`<option value="${r}">${r}</option>`).join('');
+  ['cf-today-area','cf-int-region','cf-ext-region','cf-com-region'].forEach(id=>{
+    const el=document.getElementById(id); if(!el) return;
+    const cur=el.value; el.innerHTML=opts; el.value=cur;
+  });
+}
+
+// Shared age-bucket matcher for the overdue tabs (days = days since last inspection).
+function ageBucketMatch(days,b){
+  if(!b) return true;
+  if(days===null) return b==='none';
+  if(b==='none') return false;
+  if(b==='u1') return days<=365;
+  if(b==='1-2') return days>365&&days<=730;
+  if(b==='2-3') return days>730&&days<=1095;
+  if(b==='3p') return days>1095;
+  return true;
 }
 
 function sortTable(tab,col){
@@ -661,10 +860,9 @@ function rerender(tab){
 
 function markActiveInline(id){ /* no-op, just triggers rerender */ }
 function clearUpcomingFilters(){
-  document.getElementById('cf-today-prop').value='';
-  document.getElementById('cf-today-region').value='';
-  document.getElementById('cf-today-type').value='';
-  document.getElementById('cf-today-time').value='';
+  ['cf-today-prop','cf-today-region','cf-today-type','cf-today-time','cf-today-area'].forEach(id=>{
+    const e=document.getElementById(id); if(e) e.value='';
+  });
   weekOffset=0;
   rerender('today');
 }
@@ -674,18 +872,63 @@ function changeWeek(delta,jumpToToday){
   renderToday();
 }
 
+// Shared filter set for the Upcoming tab (used by both the on-screen week view and the printable route sheet).
+function currentUpcomingFiltered(){
+  const fP=cfv('cf-today-prop'),fC=cfv('cf-today-region'),fT=cfv('cf-today-type'),fTm=cfv('cf-today-time'),fA=cfv('cf-today-area');
+  return upcomingRows.filter(r=>
+    match(r.label,fP)&&
+    (!fC||(fC==='commercial'?r.propType==='Commercial':r.propType!=='Commercial'))&&
+    (!fT||r.propType===fT)&&
+    (!fTm||r.nextTime===fTm)&&
+    (!fA||r.region===fA)
+  );
+}
+
+// Build a clean, ink-friendly weekly route sheet for the currently viewed week + filters, then print.
+function printRouteSheet(){ buildRouteSheet(); window.print(); }
+function buildRouteSheet(){
+  const filtered=currentUpcomingFiltered();
+  const weekStart=new Date(today.getTime()+weekOffset*7*86400000);
+  const weekEnd=new Date(weekStart.getTime()+6*86400000);
+  const rangeLbl=`${MON_ABBR[weekStart.getMonth()]} ${weekStart.getDate()} – ${MON_ABBR[weekEnd.getMonth()]} ${weekEnd.getDate()}, ${weekEnd.getFullYear()}`;
+  const filters=[];
+  if(cfv('cf-today-area')) filters.push(cfv('cf-today-area'));
+  if(cfv('cf-today-type')) filters.push(cfv('cf-today-type'));
+  if(cfv('cf-today-region')) filters.push(cfv('cf-today-region')==='commercial'?'Commercial':'Residential');
+  if(cfv('cf-today-time')) filters.push(cfv('cf-today-time'));
+  if(cfv('cf-today-prop')) filters.push('“'+cfv('cf-today-prop')+'”');
+
+  let html=`<div class="rs-head">
+    <div><h1>Inspection Route Sheet</h1><div style="font-size:12px">Ryconn Property Management${filters.length?' · '+filters.join(' · '):''}</div></div>
+    <div class="rs-meta">Week of ${rangeLbl}<br>Printed ${today.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>
+  </div>`;
+
+  let anyStops=false;
+  for(let i=0;i<7;i++){
+    const dayDt=new Date(weekStart.getTime()+i*86400000);
+    const dayRows=filtered.filter(r=>r.nextDate&&r.nextDate.getTime()===dayDt.getTime())
+      .sort((a,b)=>{const ai=SLOT_ORDER.indexOf(a.nextTime),bi=SLOT_ORDER.indexOf(b.nextTime);return (ai<0?99:ai)-(bi<0?99:bi)||(a.label||'').localeCompare(b.label||'');});
+    if(!dayRows.length) continue;
+    anyStops=true;
+    html+=`<div class="rs-day"><div class="rs-day-hd">${DAY_FULL[dayDt.getDay()]}, ${MON_ABBR[dayDt.getMonth()]} ${dayDt.getDate()} · ${dayRows.length} stop${dayRows.length>1?'s':''}</div>`;
+    html+=dayRows.map(r=>{
+      const time=(!r.nextTime||r.nextTime==='Unscheduled')?'—':r.nextTime;
+      const phone=(r.phone||'').replace(/^(phone|mobile):\s*/i,'').split(',')[0].trim();
+      const sub=[r.city&&(r.zip?`${r.city} ${r.zip}`:r.city),r.tenant,phone].filter(Boolean).join(' · ');
+      return `<div class="rs-row"><div class="rs-chk"></div><div class="rs-time">${time}</div><div class="rs-info"><div class="rs-addr">${r.label}</div><div class="rs-sub">${sub}</div></div><div class="rs-notes"></div></div>`;
+    }).join('');
+    html+=`</div>`;
+  }
+  if(!anyStops) html+=`<div class="rs-empty">No inspections scheduled for this week with the current filters.</div>`;
+  document.getElementById('route-sheet').innerHTML=html;
+}
+
 function renderToday(){
-  const fP=cfv('cf-today-prop'),fR=cfv('cf-today-region'),fT=cfv('cf-today-type'),fTm=cfv('cf-today-time');
   const SLOT_ORDER=['9:00 AM to 11:00 AM','11:00 AM to 1:00 PM','1:00 PM to 3:00 PM','3:00 PM to 4:00 PM'];
   const DAY_NAMES=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   const MON_NAMES=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
-  let filtered=upcomingRows.filter(r=>
-    match(r.label,fP)&&
-    (!fR||(fR==='commercial'?r.propType==='Commercial':r.propType!=='Commercial'))&&
-    (!fT||r.propType===fT)&&
-    (!fTm||r.nextTime===fTm)
-  );
+  let filtered=currentUpcomingFiltered();
 
   const weekStart=new Date(today.getTime()+weekOffset*7*24*60*60*1000);
   const nextWeekStart=new Date(weekStart.getTime()+7*24*60*60*1000);
@@ -751,12 +994,12 @@ function renderToday(){
             ?'<span class="dim">Unscheduled</span>'
             :`<span style="font-family:'DM Mono',monospace;font-size:12px">${r.nextTime}</span>`;
           return `<tr>
-            <td>${r.label}</td>
-            <td><span style="font-size:12px;color:var(--muted)">${r.city}</span></td>
-            <td><span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--muted)">${r.zip}</span></td>
-            <td>${pill(r.propType)}</td>
-            <td>${time}</td>
-            <td style="font-family:'DM Mono',monospace;font-size:12px" class="${r.lastInt?'':'dim'}">${fmt(r.lastInt)}</td>
+            <td data-label="Property">${r.label}</td>
+            <td data-label="City"><span style="font-size:12px;color:var(--muted)">${r.city}</span></td>
+            <td data-label="Zip"><span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--muted)">${r.zip}</span></td>
+            <td data-label="Type">${pill(r.propType)}</td>
+            <td data-label="Time">${time}</td>
+            <td data-label="Last Interior" style="font-family:'DM Mono',monospace;font-size:12px" class="${r.lastInt?'':'dim'}">${fmt(r.lastInt)}</td>
           </tr>`;
         }).join('')}</tbody>
       </table>`;
@@ -767,34 +1010,84 @@ function renderToday(){
 }
 
 function renderInt(){
-  const fP=cfv('cf-int-prop'),fTp=cfv('cf-int-type'),fTm=cfv('cf-int-time');
-  let d=overdueInt.filter(r=>match(r.label,fP)&&(!fTp||r.propType===fTp)&&(!fTm||(r.nextTime||'')===(fTm)));
+  const fP=cfv('cf-int-prop'),fTp=cfv('cf-int-type'),fTm=cfv('cf-int-time'),fRg=cfv('cf-int-region'),fAge=cfv('cf-int-age');
+  let d=overdueInt.filter(r=>
+    (intSeg==='all'?r.schedStatus!=='suppressed':r.schedStatus===intSeg)&&
+    match(r.label,fP)&&
+    (!fTp||r.propType===fTp)&&
+    (!fTm||(r.nextTime||'')===fTm)&&
+    (!fRg||r.region===fRg)&&
+    ageBucketMatch(diff(r.lastInt),fAge)
+  );
   d=applySort(d,'int'); updateSortBtns('int');
   const tb=document.getElementById('tb-int');
-  if(!d.length){tb.innerHTML=`<tr><td colspan="8"><div class="empty"><p>No overdue interiors match your filter.</p></div></td></tr>`;return;}
+  if(!d.length){tb.innerHTML=`<tr><td colspan="9"><div class="empty"><p>No overdue interiors match your filter.</p></div></td></tr>`;return;}
   tb.innerHTML=d.map(r=>{
     const days=diff(r.lastInt);
     const nextDisp=(isFuture(r.nextDate)&&!isPlaceholder(r.nextDate))?`<span style="font-family:'DM Mono',monospace;font-size:12px">${fmt(r.nextDate)}</span>`:'<span class="dim">—</span>';
-    const time=(!r.nextTime||r.nextTime==='Unscheduled')?'<span class="dim">—</span>':r.nextTime;
-    return `<tr><td>${r.label}</td><td><span style="font-size:12px;color:var(--muted)">${r.city}</span></td><td><span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--muted)">${r.zip}</span></td><td>${pill(r.propType)}</td><td style="font-family:'DM Mono',monospace;font-size:12px" class="${r.lastInt?'':'dim'}">${fmt(r.lastInt)}</td><td>${dayBadge(days,INT_DAYS)}</td><td>${nextDisp}</td><td style="font-family:'DM Mono',monospace;font-size:12px">${time}</td></tr>`;
+    const time=(r.schedStatus==='scheduled'&&r.nextTime&&r.nextTime!=='Unscheduled')?r.nextTime:'<span class="dim">—</span>';
+    const st=r.schedStatus==='scheduled'?'<span class="spill sched">Scheduled</span>'
+            :r.schedStatus==='suppressed'?'<span class="spill supp">Suppressed</span>'
+            :'<span class="spill unsched">Unscheduled</span>';
+    return `<tr>
+      <td data-label="Property">${r.label}</td>
+      <td data-label="City"><span style="font-size:12px;color:var(--muted)">${r.city}</span></td>
+      <td data-label="Zip"><span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--muted)">${r.zip}</span></td>
+      <td data-label="Type">${pill(r.propType)}</td>
+      <td data-label="Last Interior" style="font-family:'DM Mono',monospace;font-size:12px" class="${r.lastInt?'':'dim'}">${fmt(r.lastInt)}</td>
+      <td data-label="Days Since">${dayBadge(days,INT_DAYS)}</td>
+      <td data-label="Status">${st}</td>
+      <td data-label="Next Scheduled">${nextDisp}</td>
+      <td data-label="Time" style="font-family:'DM Mono',monospace;font-size:12px">${time}</td>
+    </tr>`;
   }).join('');
 }
 
+function setIntSeg(s){
+  intSeg=s;
+  document.querySelectorAll('#int-seg button').forEach(b=>b.classList.toggle('on',b.dataset.seg===s));
+  renderInt();
+}
+function clearIntAdv(){
+  ['cf-int-region','cf-int-age'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  renderInt();
+}
+function clearExtAdv(){
+  ['cf-ext-region','cf-ext-age'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  renderExt();
+}
+function clearComAdv(){
+  ['cf-com-prop','cf-com-region'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  renderCom();
+}
+
 function renderExt(){
-  const fP=cfv('cf-ext-prop'),fTp=cfv('cf-ext-type');
-  let d=overdueExt.filter(r=>match(r.label,fP)&&(!fTp||r.propType===fTp));
+  const fP=cfv('cf-ext-prop'),fTp=cfv('cf-ext-type'),fRg=cfv('cf-ext-region'),fAge=cfv('cf-ext-age');
+  let d=overdueExt.filter(r=>
+    match(r.label,fP)&&
+    (!fTp||r.propType===fTp)&&
+    (!fRg||r.region===fRg)&&
+    ageBucketMatch(diff(r.lastExt),fAge)
+  );
   d=applySort(d,'ext'); updateSortBtns('ext');
   const tb=document.getElementById('tb-ext');
   if(!d.length){tb.innerHTML=`<tr><td colspan="6"><div class="empty"><p>No overdue exteriors match your filter.</p></div></td></tr>`;return;}
   tb.innerHTML=d.map(r=>{
     const days=diff(r.lastExt);
-    return `<tr><td>${r.label}</td><td><span style="font-size:12px;color:var(--muted)">${r.city}</span></td><td><span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--muted)">${r.zip}</span></td><td>${pill(r.propType)}</td><td style="font-family:'DM Mono',monospace;font-size:12px" class="${r.lastExt?'':'dim'}">${fmt(r.lastExt)}</td><td>${dayBadge(days,EXT_DAYS)}</td></tr>`;
+    return `<tr>
+      <td data-label="Property">${r.label}</td>
+      <td data-label="City"><span style="font-size:12px;color:var(--muted)">${r.city}</span></td>
+      <td data-label="Zip"><span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--muted)">${r.zip}</span></td>
+      <td data-label="Type">${pill(r.propType)}</td>
+      <td data-label="Last Exterior" style="font-family:'DM Mono',monospace;font-size:12px" class="${r.lastExt?'':'dim'}">${fmt(r.lastExt)}</td>
+      <td data-label="Days Since">${dayBadge(days,EXT_DAYS)}</td>
+    </tr>`;
   }).join('');
 }
 
 function renderCom(){
-  const fP=cfv('cf-com-prop');
-  let d=commercialRows.filter(r=>match(r.label,fP));
+  const fP=cfv('cf-com-prop'),fRg=cfv('cf-com-region');
+  let d=commercialRows.filter(r=>match(r.label,fP)&&(!fRg||r.region===fRg));
   d=applySort(d,'com'); updateSortBtns('com');
   const tb=document.getElementById('tb-com');
   if(!d.length){tb.innerHTML=`<tr><td colspan="7"><div class="empty"><p>No commercial properties match your filter.</p></div></td></tr>`;return;}
@@ -802,13 +1095,13 @@ function renderCom(){
     const nextDisp=(isFuture(r.nextDate)&&!isPlaceholder(r.nextDate))?`<span style="font-family:'DM Mono',monospace;font-size:12px">${fmt(r.nextDate)}</span>`:'<span class="dim">—</span>';
     const time=(!r.nextTime||r.nextTime==='Unscheduled')?'<span class="dim">—</span>':r.nextTime;
     return `<tr>
-      <td>${r.label}</td>
-      <td><span style="font-size:12px;color:var(--muted)">${r.city}</span></td>
-      <td><span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--muted)">${r.zip}</span></td>
-      <td style="font-family:'DM Mono',monospace;font-size:12px" class="${r.lastInt?'':'dim'}">${fmt(r.lastInt)}</td>
-      <td style="font-family:'DM Mono',monospace;font-size:12px" class="${r.lastExt?'':'dim'}">${fmt(r.lastExt)}</td>
-      <td>${nextDisp}</td>
-      <td style="font-family:'DM Mono',monospace;font-size:12px">${time}</td>
+      <td data-label="Property">${r.label}</td>
+      <td data-label="City"><span style="font-size:12px;color:var(--muted)">${r.city}</span></td>
+      <td data-label="Zip"><span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--muted)">${r.zip}</span></td>
+      <td data-label="Last Interior" style="font-family:'DM Mono',monospace;font-size:12px" class="${r.lastInt?'':'dim'}">${fmt(r.lastInt)}</td>
+      <td data-label="Last Exterior" style="font-family:'DM Mono',monospace;font-size:12px" class="${r.lastExt?'':'dim'}">${fmt(r.lastExt)}</td>
+      <td data-label="Next Inspection">${nextDisp}</td>
+      <td data-label="Time" style="font-family:'DM Mono',monospace;font-size:12px">${time}</td>
     </tr>`;
   }).join('');
 }
@@ -833,5 +1126,8 @@ updateSortBtns('int'); updateSortBtns('ext'); updateSortBtns('com');
 
 loadCSV();
 </script>
+
+<!-- Printable weekly route sheet (hidden on screen; shown only when printing) -->
+<div id="route-sheet"></div>
 </body>
 </html>
