@@ -289,6 +289,7 @@
       <option value="11:00 AM to 1:00 PM">11 AM–1 PM</option>
       <option value="1:00 PM to 3:00 PM">1–3 PM</option>
       <option value="3:00 PM to 4:00 PM">3–4 PM</option>
+      <option value="4:00 PM to 5:00 PM">4–5 PM</option>
       <option value="Unscheduled">Unscheduled</option>
     </select>
 
@@ -429,6 +430,7 @@
               <option value="11:00 AM to 1:00 PM">11:00 AM – 1:00 PM</option>
               <option value="1:00 PM to 3:00 PM">1:00 PM – 3:00 PM</option>
               <option value="3:00 PM to 4:00 PM">3:00 PM – 4:00 PM</option>
+              <option value="4:00 PM to 5:00 PM">4:00 PM – 5:00 PM</option>
               <option value="Unscheduled">Unscheduled</option>
             </select>
             <button class="flt-clr" onclick="clearFlt('cf-int-time','fbtn-int-time','int')">Clear</button>
@@ -581,7 +583,7 @@
 <script>
 const INT_DAYS=365,EXT_DAYS=183;
 const CSV_URL='https://raw.githubusercontent.com/ryconn-pm/inspection-portal/main/data/report.csv';
-const VALID_SLOTS=['9:00 AM to 11:00 AM','11:00 AM to 1:00 PM','1:00 PM to 3:00 PM','3:00 PM to 4:00 PM'];
+const VALID_SLOTS=['9:00 AM to 11:00 AM','11:00 AM to 1:00 PM','1:00 PM to 3:00 PM','3:00 PM to 4:00 PM','4:00 PM to 5:00 PM'];
 const SLOT_ORDER=VALID_SLOTS;
 const DAY_FULL=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 const MON_ABBR=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -987,7 +989,7 @@ function buildRouteSheet(){
 }
 
 function renderToday(){
-  const SLOT_ORDER=['9:00 AM to 11:00 AM','11:00 AM to 1:00 PM','1:00 PM to 3:00 PM','3:00 PM to 4:00 PM'];
+  const SLOT_ORDER=['9:00 AM to 11:00 AM','11:00 AM to 1:00 PM','1:00 PM to 3:00 PM','3:00 PM to 4:00 PM','4:00 PM to 5:00 PM'];
   const DAY_NAMES=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   const MON_NAMES=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
